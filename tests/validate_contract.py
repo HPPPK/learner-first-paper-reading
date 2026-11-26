@@ -34,6 +34,31 @@ PRODUCTION_FILES = (
 # of the relevant words. They are conservative static coverage checks; scenarios
 # remain the authority on whether an agent follows the instructions in practice.
 RELATIONSHIPS = {
+    "prerequisites limited to next reading": (
+        r"\bteach only\b.{0,60}?\bprerequisites\b.{0,60}?\bneeded\b"
+        r".{0,60}?\bnext (?:selected )?(?:reading|passage|section)\b",
+    ),
+    "return to source after teaching": (
+        r"\bafter\b.{0,60}?\b(?:background|prerequisite)\b.{0,60}?"
+        r"\breturn\b.{0,60}?\boriginal\b.{0,60}?\b(?:passage|paragraph|equation|figure|table)\b",
+    ),
+    "material background receives authoritative links": (
+        r"\bwhen\b.{0,60}?\bexternal background\b.{0,60}?\bmaterially\b"
+        r".{0,60}?\bprovide\b.{0,60}?\bdirect\b.{0,60}?\bauthoritative\b.{0,60}?\blink\b",
+    ),
+    "external material is labeled Background": (
+        r"\blabel\b.{0,60}?\bexternal (?:material|knowledge|sources?|background)\b"
+        r".{0,60}?\bbackground\b",
+    ),
+    "background stays separate from focal evidence": (
+        r"\bkeep\b.{0,60}?\bexternal background\b.{0,60}?\bseparate from\b"
+        r".{0,60}?\bfocal paper(?:'s)?\b.{0,60}?\bevidence\b",
+    ),
+    "authoritative sources rank above blogs": (
+        r"\bprefer\b.{0,300}?\boriginal papers?\b.{0,300}?\bpublisher\b"
+        r".{0,300}?\bofficial code\b.{0,300}?\btextbooks?\b"
+        r".{0,300}?\buniversity\b.{0,100}?\bover\b.{0,60}?\bblogs?\b",
+    ),
     "learning request defaults to guided learning": (
         r"\bwhen\b.{0,40}?\b(?:learner|user)\b.{0,40}?\basks? to learn\b"
         r".{0,100}?\bguided learning\b.{0,40}?\b(?:is|as) the default\b",
@@ -253,6 +278,66 @@ class SkillContract(unittest.TestCase):
             "external background sources": r"authoritative|textbook|original paper|official documentation",
         })
 
+    def test_explanation_has_ordered_mechanism_first_layers(self):
+        path = ROOT / "references/explanation-standard.md"
+        self.assertTrue(path.is_file(), "Prerequisite teaching requires the explanation reference")
+        explanation = path.read_text(encoding="utf-8")
+        # Detect omitted/reordered teaching stages, without fixing their wording.
+        stages = (
+            r"problem|technical need",
+            r"plain[- ]language mechanism|plain mechanism",
+            r"minimal (?:worked )?example",
+            r"precise (?:definition|version|statement)",
+            r"(?:focal )?paper role|role in (?:the )?(?:focal )?paper",
+            r"boundary|assumptions and limits",
+            r"further reading",
+        )
+        numbered = re.findall(r"^\d+\.\s+(.+)$", explanation, re.MULTILINE)
+        self.assertGreaterEqual(len(numbered), len(stages), "All seven teaching layers are required")
+        for index, pattern in enumerate(stages):
+            with self.subTest(layer=index + 1):
+                self.assertRegex(numbered[index].lower(), pattern)
+        self.assert_concepts(" ".join(explanation.split()), {
+            "capable beginner calibration": r"capable beginner",
+            "hand-checkable example": r"hand[- ]checkable|calculate.{0,50}by hand",
+            "translation alone is insufficient": r"(?:translation[- ]only|translation alone).{0,100}(?:insufficient|incomplete)",
+            "childish analogy alone is insufficient": r"childish analog(?:y|ies).{0,100}(?:insufficient|incomplete)",
+            "correct answers permit progress": r"technically correct.{0,180}(?:move|progress|continue)",
+            "links have a material-value condition": r"(?:omit|skip).{0,70}links?.{0,100}(?:adds? no value|no explanatory value)",
+        })
+        for relationship in (
+            "prerequisites limited to next reading",
+            "return to source after teaching",
+            "material background receives authoritative links",
+        ):
+            with self.subTest(relationship=relationship):
+                self.assertTrue(has_positive_relationship(explanation, relationship))
+
+    def test_source_quality_checks_identity_access_and_provenance(self):
+        path = ROOT / "references/source-quality.md"
+        self.assertTrue(path.is_file(), "Source provenance requires the source-quality reference")
+        source = path.read_text(encoding="utf-8")
+        self.assert_concepts(" ".join(source.split()), {
+            "paper identity": r"title.{0,40}authors",
+            "version identity": r"version.{0,40}date",
+            "publication status": r"publication status",
+            "full text access": r"full[- ]text",
+            "abstract-only access": r"abstract[- ]only",
+            "inspected coverage": r"(?:record|state|disclose).{0,80}(?:inspected|coverage)",
+            "access failures disclosed": r"(?:disclose|state).{0,80}(?:access limits|unavailable|blocked|unreadable)",
+            "stable direct links": r"stable.{0,40}direct link|direct.{0,40}stable link",
+            "primary technical sources": r"primary sources.{0,80}technical claims",
+            "inspect supporting passage": r"(?:inspect|read).{0,80}(?:passage|section).{0,80}(?:supports?|supporting)",
+            "abstract cannot establish full reading": r"abstract[- ]only.{0,150}(?:unverified|unknown)",
+        })
+        for relationship in (
+            "external material is labeled Background",
+            "background stays separate from focal evidence",
+            "authoritative sources rank above blogs",
+        ):
+            with self.subTest(relationship=relationship):
+                self.assertTrue(has_positive_relationship(source, relationship))
+
     def test_six_reproduction_levels_are_routed(self):
         reproduction = self.read("references/reproduction-levels.md")
         self.assert_concepts(reproduction, {
@@ -308,6 +393,23 @@ class ContractRelationshipChecks(unittest.TestCase):
             ("negated rule", "The first user-facing response must not explain the route before substantive paper analysis.", False),
             ("keywords only", "Opening, first response, route, before, substantive analysis.", False),
         ))
+
+    def test_teaching_and_source_rules_require_instruction_relationships(self):
+        cases = {
+            "prerequisites limited to next reading": "Teach only the prerequisites needed for the next selected reading.",
+            "return to source after teaching": "After the background detour, return to the original passage.",
+            "material background receives authoritative links": "When external background materially improves understanding, provide a direct authoritative link.",
+            "external material is labeled Background": "Label external material as Background.",
+            "background stays separate from focal evidence": "Keep external background separate from the focal paper's evidence.",
+            "authoritative sources rank above blogs": "Prefer original papers, publisher pages, official code, textbooks, and university material over blogs.",
+        }
+        for relationship, instruction in cases.items():
+            with self.subTest(relationship=relationship):
+                self.check_cases(relationship, (
+                    ("positive", instruction, True),
+                    ("negated", "Do not " + instruction.lower(), False),
+                    ("keywords only", relationship, False),
+                ))
 
     def test_learning_default_requires_the_learning_condition(self):
         self.check_cases("learning request defaults to guided learning", (

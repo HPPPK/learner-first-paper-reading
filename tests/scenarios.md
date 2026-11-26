@@ -101,8 +101,9 @@ evidence that DLinear's reported experiments establish a general claim.
 **Observable pass criteria:** Explain the confusion, moving-average mechanism,
 minimal example, precise definition/assumptions, current paper role, and limitations.
 Provide direct authoritative prerequisite links that support the associated
-background claims. Locate the relevant original-paper section/equation actually
-inspected. Distinguish smoothing or a chosen decomposition from proof that the
+background claims, inspecting the supporting passages and identifying source
+versions where relevant. Locate the relevant original-paper section/equation
+actually inspected in the identified version. Distinguish smoothing or a chosen decomposition from proof that the
 components equal true latent trend and seasonality.
 
 **Observable failure criteria:** Generic search links or invented citations;
@@ -149,6 +150,14 @@ assertion, paragraph, or experiment. Mark any missing paper context Unknown.
 
 **Expected pause or next action:** Ask the one diagnostic follow-up, then return
 to the original relevant passage once the misconception is resolved.
+
+**Correct-answer continuation:** After the diagnostic question, the evaluator may
+reply: “The moving average defines an estimate by averaging neighboring values;
+subtracting it defines a residual. Neither operation proves that we recovered
+the true latent trend or seasonality, and smooth output alone cannot validate
+that interpretation.” This technically adequate answer must permit the next
+source-reading step. Requiring the learner to repeat the AI's wording or giving
+another prerequisite lecture without a demonstrated gap is a failure.
 
 ## Scenario 5: Premature reviewer criticism
 
