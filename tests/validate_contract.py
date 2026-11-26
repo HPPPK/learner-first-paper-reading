@@ -127,6 +127,58 @@ def has_positive_relationship(text, relationship):
     return False
 
 
+def has_explanation_layer_instruction(text, layer):
+    """Check substantive directives in one layer, excluding its heading.
+
+    This bounded coverage matcher is intentionally conservative, not a general
+    natural-language parser. Each required relationship must occur in this body;
+    a worked example or instruction in another layer cannot supply it.
+    """
+    prose = " ".join(re.sub(r"[*_`]", "", text.lower()).split())
+    _, separator, body = prose.partition(":")
+    body = body.strip()
+    if not separator or re.search(
+        r"(?:^|[.;]\s+)(?:do not|don't|never|skip|omit|avoid|ignore|withhold|leave)\b|"
+        r"\b(?:optional|unnecessary|irrelevant|not required)\b",
+        body,
+    ):
+        return False
+    rules = {
+        "mechanism": (
+            r"\b(?:describe|explain|trace)\b.{0,60}\b(?:what enters|inputs?)\b"
+            r".{0,100}\b(?:what changes|transformation|operations?|steps?)\b"
+            r".{0,100}\b(?:what comes out|outputs?)\b",
+        ),
+        "example": (
+            r"\b(?:give|provide|use|work through)\b.{0,60}"
+            r"\b(?:hand[- ]checkable|small|minimal|toy|worked)\b"
+            r".{0,60}\b(?:example|diagram|pipeline)\b",
+            r"\b(?:show|calculate|trace)\b.{0,60}\bintermediate (?:operations|steps|values)\b"
+            r".{0,100}\b(?:result|resulting value|resulting change)\b",
+        ),
+        "precision": (
+            r"\b(?:define|specify)\b.{0,60}\b(?:symbols|notation)\b"
+            r".{0,100}\b(?:dimensions|units)\b.{0,100}\b(?:operation|equation)\b",
+            r"\b(?:state|identify|explain)\b.{0,60}\b(?:conditions|assumptions)\b"
+            r".{0,100}\b(?:accurate|holds|valid)\b",
+        ),
+        "paper role": (
+            r"\b(?:connect|relate)\b.{0,60}\bconcept\b.{0,60}\binspected\b"
+            r".{0,40}\b(?:focal[- ]paper|paper)\b.{0,40}\b(?:anchor|section|passage)\b"
+            r".{0,100}\b(?:design choice|reasoning|method)\b",
+            r"\b(?:mark|state)\b.{0,40}\brole\b.{0,30}\bunknown\b"
+            r".{0,30}\b(?:if|when)\b.{0,80}\b(?:absent|uninspected|unavailable)\b",
+        ),
+        "boundary": (
+            r"\b(?:state|explain|identify)\b.{0,60}\bassumptions\b"
+            r".{0,100}\b(?:approximation error|failure cases|limits)\b",
+            r"\bwhat\b.{0,80}\bdoes not establish\b|"
+            r"\bidentify\b.{0,80}\bconclusions\b.{0,40}\bunsupported\b",
+        ),
+    }
+    return all(re.search(pattern, body) for pattern in rules[layer])
+
+
 def scalar(frontmatter, key):
     """Read a plain, quoted, or folded top-level scalar, without a YAML library."""
     lines = frontmatter.splitlines()
@@ -297,6 +349,18 @@ class SkillContract(unittest.TestCase):
         for index, pattern in enumerate(stages):
             with self.subTest(layer=index + 1):
                 self.assertRegex(numbered[index].lower(), pattern)
+        for index, layer in (
+            (1, "mechanism"),
+            (2, "example"),
+            (3, "precision"),
+            (4, "paper role"),
+            (5, "boundary"),
+        ):
+            with self.subTest(substantive_layer=layer):
+                self.assertTrue(
+                    has_explanation_layer_instruction(numbered[index], layer),
+                    f"Layer {layer} needs substantive positive instructions in its own body",
+                )
         self.assert_concepts(" ".join(explanation.split()), {
             "capable beginner calibration": r"capable beginner",
             "hand-checkable example": r"hand[- ]checkable|calculate.{0,50}by hand",
@@ -410,6 +474,58 @@ class ContractRelationshipChecks(unittest.TestCase):
                     ("negated", "Do not " + instruction.lower(), False),
                     ("keywords only", relationship, False),
                 ))
+
+    def test_explanation_layer_bodies_require_substantive_instructions(self):
+        # Retain every heading while mutating only its instruction body.
+        # Alternate positives keep these checks from requiring exact guide prose.
+        cases = {
+            "mechanism": (
+                "Plain-language mechanism",
+                "Describe what enters, what changes step by step, and what comes out.",
+                "Trace the inputs through the transformation to the outputs.",
+                "Inputs, operations, outputs.",
+                "Do not describe what enters, what changes step by step, and what comes out.",
+            ),
+            "example": (
+                "Minimal worked example",
+                "Give a hand-checkable numerical example. Show intermediate operations and the resulting value.",
+                "Provide a small toy pipeline. Calculate intermediate steps and the result.",
+                "Hand-checkable example, intermediate operations, result.",
+                "Give a hand-checkable numerical example. Skip intermediate operations and assert the result.",
+            ),
+            "precision": (
+                "Precise definition",
+                "Define symbols, dimensions, units, and the formal equation. State the conditions under which the explanation is accurate.",
+                "Specify notation, units, and the operation. Explain the assumptions under which it holds.",
+                "Symbols, dimensions, units, formal equation, conditions, accurate.",
+                "Do not define symbols, dimensions, units, or the formal equation. State the conditions under which the explanation is accurate.",
+            ),
+            "paper role": (
+                "Paper role",
+                "Connect the concept to an inspected focal-paper anchor and the design choice it explains. Mark the role Unknown if the paper is absent.",
+                "Relate the concept to an inspected paper section and its method. State the role Unknown when the passage is uninspected.",
+                "Concept, inspected focal-paper anchor, design choice, role Unknown, paper absent.",
+                "Connect the concept to an uninspected focal-paper anchor and invent the design choice. Mark the role known if the paper is absent.",
+            ),
+            "boundary": (
+                "Boundary",
+                "State assumptions, approximation error, failure cases, and what the example does not establish.",
+                "Explain assumptions and failure cases; identify which conclusions remain unsupported.",
+                "Assumptions, approximation error, failure cases, unsupported conclusions.",
+                "State assumptions, approximation error, failure cases, and what the example does not establish only as optional material.",
+            ),
+        }
+        for layer, (heading, positive, alternate, keywords, contrary) in cases.items():
+            for label, body, expected in (
+                ("positive", positive, True),
+                ("alternate positive", alternate, True),
+                ("empty heading", "", False),
+                ("keyword-only body", keywords, False),
+                ("contrary instruction", contrary, False),
+            ):
+                with self.subTest(layer=layer, case=label):
+                    text = f"2. **{heading}:** {body}"
+                    self.assertEqual(has_explanation_layer_instruction(text, layer), expected)
 
     def test_learning_default_requires_the_learning_condition(self):
         self.check_cases("learning request defaults to guided learning", (
