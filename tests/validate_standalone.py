@@ -197,6 +197,8 @@ class StandaloneProjectContracts(unittest.TestCase):
         for version in ('"3.9"', '"3.11"', '"3.13"'):
             self.assertIn(version, workflow)
         self.assertIn("runs-on: ubuntu-24.04", workflow)
+        self.assertIn("uses: actions/checkout@v7", workflow)
+        self.assertIn("uses: actions/setup-python@v7", workflow)
         self.assertIn("python tests/validate_contract.py", workflow)
         self.assertIn("python tests/validate_standalone.py", workflow)
         self.assertNotRegex(workflow, r"(?i)(secret|token|curl |wget |pip install)")
