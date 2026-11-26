@@ -9,6 +9,13 @@
   <a href="ACKNOWLEDGMENTS.md">Acknowledgments</a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/HPPPK/learner-first-paper-reading/actions/workflows/validate.yml"><img alt="Validation" src="https://github.com/HPPPK/learner-first-paper-reading/actions/workflows/validate.yml/badge.svg"></a>
+  <a href="https://github.com/HPPPK/learner-first-paper-reading/releases"><img alt="Release" src="https://img.shields.io/github/v/release/HPPPK/learner-first-paper-reading"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/HPPPK/learner-first-paper-reading"></a>
+  <a href="SKILL.md"><img alt="Agent Skill" src="https://img.shields.io/badge/Agent%20Skill-learner--first-42D3C5"></a>
+</p>
+
 # Learner-First Paper Reading
 
 **AI scaffolds. You read. Evidence decides.**
@@ -146,9 +153,11 @@ learning outcomes.
 
 ## What is tested
 
-- **37 deterministic contract tests** check routing, explanation layers, source
-  boundaries, evidence voices, figures, equations, reproduction states, links,
-  attribution, and packaging.
+- **37 core deterministic contract tests** check routing, explanation layers,
+  source boundaries, evidence voices, figures, equations, reproduction states,
+  attribution, and the skill package.
+- **13 standalone project checks** cover bilingual parity, public links, examples,
+  governance files, accessible SVGs, CI, and badges.
 - **Seven sampled behavior scenarios** cover guided DLinear reading, direct
   equation explanation, prerequisite sourcing, misconception correction,
   premature criticism, a forward smoke test, and abstract-only access.

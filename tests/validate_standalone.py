@@ -74,9 +74,13 @@ class StandaloneProjectContracts(unittest.TestCase):
     def test_readme_claims_current_contract_count(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         contract_source = (ROOT / "tests" / "validate_contract.py").read_text(encoding="utf-8")
-        count = len(re.findall(r"^\s+def test_", contract_source, flags=re.MULTILINE))
-        self.assertEqual(37, count, "Update this contract when deterministic coverage changes")
-        self.assertRegex(readme, rf"\b{count}\b[^\n]*(?:contract|deterministic)")
+        standalone_source = Path(__file__).read_text(encoding="utf-8")
+        contract_count = len(re.findall(r"^\s+def test_", contract_source, flags=re.MULTILINE))
+        standalone_count = len(re.findall(r"^\s+def test_", standalone_source, flags=re.MULTILINE))
+        self.assertEqual(37, contract_count, "Update this contract when core coverage changes")
+        self.assertEqual(13, standalone_count, "Update this contract when project coverage changes")
+        self.assertRegex(readme, rf"\b{contract_count}\b[^\n]*(?:contract|deterministic)")
+        self.assertRegex(readme, rf"\b{standalone_count}\b[^\n]*standalone")
 
     def test_bilingual_pages_cross_link_and_share_core_claims(self) -> None:
         chinese_path = ROOT / "README.zh-CN.md"
@@ -183,6 +187,30 @@ class StandaloneProjectContracts(unittest.TestCase):
         ).lower()
         self.assertIn("evidence", issue_text)
         self.assertIn("source", issue_text)
+
+    def test_ci_workflow_is_portable_and_runs_both_local_validators(self) -> None:
+        workflow_path = ROOT / ".github" / "workflows" / "validate.yml"
+        self.assertTrue(workflow_path.is_file())
+        workflow = workflow_path.read_text(encoding="utf-8")
+        for trigger in ("push:", "pull_request:", "workflow_dispatch:"):
+            self.assertIn(trigger, workflow)
+        for version in ('"3.9"', '"3.11"', '"3.13"'):
+            self.assertIn(version, workflow)
+        self.assertIn("python tests/validate_contract.py", workflow)
+        self.assertIn("python tests/validate_standalone.py", workflow)
+        self.assertNotRegex(workflow, r"(?i)(secret|token|curl |wget |pip install)")
+
+    def test_bilingual_landing_pages_show_matching_project_badges(self) -> None:
+        expected = (
+            "actions/workflows/validate.yml/badge.svg",
+            "img.shields.io/github/v/release/HPPPK/learner-first-paper-reading",
+            "img.shields.io/github/license/HPPPK/learner-first-paper-reading",
+            "img.shields.io/badge/Agent%20Skill-learner--first-42D3C5",
+        )
+        for name in ("README.md", "README.zh-CN.md"):
+            text = (ROOT / name).read_text(encoding="utf-8")
+            for badge in expected:
+                self.assertIn(badge, text, f"{name} is missing badge {badge}")
 
 
 if __name__ == "__main__":

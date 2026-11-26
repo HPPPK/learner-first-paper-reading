@@ -9,6 +9,13 @@
   <a href="ACKNOWLEDGMENTS.md">致谢</a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/HPPPK/learner-first-paper-reading/actions/workflows/validate.yml"><img alt="Validation" src="https://github.com/HPPPK/learner-first-paper-reading/actions/workflows/validate.yml/badge.svg"></a>
+  <a href="https://github.com/HPPPK/learner-first-paper-reading/releases"><img alt="Release" src="https://img.shields.io/github/v/release/HPPPK/learner-first-paper-reading"></a>
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/github/license/HPPPK/learner-first-paper-reading"></a>
+  <a href="SKILL.md"><img alt="Agent Skill" src="https://img.shields.io/badge/Agent%20Skill-learner--first-42D3C5"></a>
+</p>
+
 # Learner-First Paper Reading
 
 **AI scaffolds. You read. Evidence decides.**
@@ -134,8 +141,10 @@ Use $learner-first-paper-reading to help me learn the attached paper.
 
 ## 测试与证据
 
-- **37 项 deterministic contract tests** 检查模式路由、解释层次、来源边界、
-  四种声音、图表、公式、复现状态、链接、致谢和打包结构。
+- **37 项核心 deterministic contract tests** 检查模式路由、解释层次、来源
+  边界、四种声音、图表、公式、复现状态、致谢和 Skill 打包结构。
+- **13 项 standalone project checks** 检查中英文一致性、公开链接、示例、治理
+  文件、SVG 可访问性、CI 和 badges。
 - **seven（七）个抽样行为场景**覆盖 DLinear 引导阅读、公式直讲、外部背景来源、
   误解纠正、过早批评、forward smoke test 和只有摘要的情况。
 - 只有摘要的场景最初遗漏了未来全文阅读计划；修正规则后重新测试，同时复测了
