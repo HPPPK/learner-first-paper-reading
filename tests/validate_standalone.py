@@ -78,7 +78,7 @@ class StandaloneProjectContracts(unittest.TestCase):
         contract_count = len(re.findall(r"^\s+def test_", contract_source, flags=re.MULTILINE))
         standalone_count = len(re.findall(r"^\s+def test_", standalone_source, flags=re.MULTILINE))
         self.assertEqual(37, contract_count, "Update this contract when core coverage changes")
-        self.assertEqual(13, standalone_count, "Update this contract when project coverage changes")
+        self.assertEqual(14, standalone_count, "Update this contract when project coverage changes")
         self.assertRegex(readme, rf"\b{contract_count}\b[^\n]*(?:contract|deterministic)")
         self.assertRegex(readme, rf"\b{standalone_count}\b[^\n]*standalone")
 
@@ -211,6 +211,21 @@ class StandaloneProjectContracts(unittest.TestCase):
             text = (ROOT / name).read_text(encoding="utf-8")
             for badge in expected:
                 self.assertIn(badge, text, f"{name} is missing badge {badge}")
+
+    def test_public_examples_render_and_preserve_mathematical_precision(self) -> None:
+        focused = (ROOT / "examples" / "focused-equation.md").read_text(encoding="utf-8")
+        focused_prose = " ".join(focused.lower().split())
+        self.assertIn("affine", focused.lower())
+        self.assertRegex(focused_prose, r"linear only when.{0,30}b\s*=\s*0")
+        self.assertNotIn("The mapping is linear in", focused)
+        self.assertIn("$$", focused)
+        self.assertNotIn(r"\[", focused)
+        self.assertNotIn(r"\]", focused)
+
+        evaluation = (ROOT / "tests" / "evaluation-results.md").read_text(encoding="utf-8")
+        evaluation_prose = " ".join(evaluation.lower().split())
+        self.assertRegex(evaluation_prose, r"historical.{0,120}former fork root")
+        self.assertIn("python3 learner-first-paper-reading/tests/validate_contract.py", evaluation)
 
 
 if __name__ == "__main__":

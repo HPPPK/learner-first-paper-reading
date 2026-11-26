@@ -156,7 +156,7 @@ learning outcomes.
 - **37 core deterministic contract tests** check routing, explanation layers,
   source boundaries, evidence voices, figures, equations, reproduction states,
   attribution, and the skill package.
-- **13 standalone project checks** cover bilingual parity, public links, examples,
+- **14 standalone project checks** cover bilingual parity, public links, examples,
   governance files, accessible SVGs, CI, and badges.
 - **Seven sampled behavior scenarios** cover guided DLinear reading, direct
   equation explanation, prerequisite sourcing, misconception correction,

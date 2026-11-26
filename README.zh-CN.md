@@ -143,7 +143,7 @@ Use $learner-first-paper-reading to help me learn the attached paper.
 
 - **37 项核心 deterministic contract tests** 检查模式路由、解释层次、来源
   边界、四种声音、图表、公式、复现状态、致谢和 Skill 打包结构。
-- **13 项 standalone project checks** 检查中英文一致性、公开链接、示例、治理
+- **14 项 standalone project checks** 检查中英文一致性、公开链接、示例、治理
   文件、SVG 可访问性、CI 和 badges。
 - **seven（七）个抽样行为场景**覆盖 DLinear 引导阅读、公式直讲、外部背景来源、
   误解纠正、过早批评、forward smoke test 和只有摘要的情况。
@@ -180,4 +180,3 @@ python3 tests/validate_standalone.py
 
 本独立仓库中的原创文件采用 [MIT License](LICENSE)。致谢中的上游项目继续保留
 各自的权利；本仓库不会替它们重新授权，也不代表获得上游作者背书。
-

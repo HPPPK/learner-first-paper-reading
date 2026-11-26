@@ -291,9 +291,12 @@ every future model response. No completed full-paper learning session, retained
 learner mastery, installed discovery, cross-client compatibility, training,
 metric consistency, or full reproduction is established by this assessment.
 
-## Final deterministic verification after the fresh reruns
+## Historical deterministic verification after the fresh reruns
 
-Run from the repository root on 2026-11-26:
+The following evidence was recorded on 2026-11-26 from the **former fork root**,
+before this skill became a standalone repository. The nested path and absolute
+validator path are preserved as historical commands; use the current root-level
+commands in [README.md](../README.md) for new checks.
 
 | Command | Observed result |
 | --- | --- |
@@ -301,6 +304,6 @@ Run from the repository root on 2026-11-26:
 | `python3 /Users/panjingyu/.codex/skills/.system/skill-creator/scripts/quick_validate.py learner-first-paper-reading` | Exit 0; `Skill is valid!` |
 | `git diff --check` | Exit 0; no output. |
 
-These checks pass for the current instruction files. The independently recorded
-scenario-7 correction rerun and neighboring scenario-5 regression check supply
-the sampled behavior evidence separately.
+These historical checks passed for the instruction files at that stage. The
+independently recorded scenario-7 correction rerun and neighboring scenario-5
+regression check supply the sampled behavior evidence separately.
