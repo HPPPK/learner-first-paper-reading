@@ -34,6 +34,21 @@ PRODUCTION_FILES = (
 # of the relevant words. They are conservative static coverage checks; scenarios
 # remain the authority on whether an agent follows the instructions in practice.
 RELATIONSHIPS = {
+    "learning request defaults to guided learning": (
+        r"\bwhen\b.{0,40}?\b(?:learner|user)\b.{0,40}?\basks? to learn\b"
+        r".{0,100}?\bguided learning\b.{0,40}?\b(?:is|as) the default\b",
+    ),
+    "direct requests receive a direct response": (
+        r"\b(?:focused explanations?|non-interactive reports?)\b.{0,100}?"
+        r"\bdisclose\b.{0,60}?\b(?:brief |short )?route\b.{0,80}?"
+        r"\banswer directly\b.{0,40}?\bsame response\b.{0,80}?"
+        r"\bwithout\b.{0,40}?\b(?:learner |reading |agreement )?pause\b",
+    ),
+    "abstract access limits the reading plan": (
+        r"\babstract-only access\b.{0,100}?\b(?:provide|offer|give)\b"
+        r".{0,40}?\blimited reading plan\b.{0,100}?\bfull-paper claims\b"
+        r".{0,40}?\b(?:unverified|unknown|unestablished)\b",
+    ),
     "opening before substantive analysis": (
         r"\bfirst (?:user-facing |assistant )?(?:response|turn)\b.{0,60}?"
         r"\b(?:must|shall)\b.{0,60}?\b(?:explain|disclose|describe|present)\b"
@@ -103,6 +118,11 @@ def scalar(frontmatter, key):
 
 
 class SkillContract(unittest.TestCase):
+    def entrypoint(self):
+        path = ROOT / "SKILL.md"
+        self.assertTrue(path.is_file(), "Entrypoint routing requires SKILL.md")
+        return path.read_text(encoding="utf-8")
+
     def read(self, relative):
         path = ROOT / relative
         if not path.is_file():
@@ -157,6 +177,33 @@ class SkillContract(unittest.TestCase):
             active_lines.lower(),
             r"\ballow_implicit_invocation\s*:\s*[\"']?(?:false|no|off|0)\b",
             "Implicit invocation must remain enabled (omitting the policy is allowed)",
+        )
+
+    def test_learning_requests_default_to_the_linked_guided_workflow(self):
+        skill = self.entrypoint()
+        self.assertTrue(
+            has_positive_relationship(skill, "learning request defaults to guided learning"),
+            "An explicit request to learn must default to guided learning",
+        )
+        self.assertRegex(
+            skill.lower(),
+            r"guided learning[^\n]*\[[^\]]+\]\(references/guided-reading-workflow\.md\)",
+            "The guided learning route must point to its workflow",
+        )
+
+    def test_focused_and_noninteractive_requests_do_not_get_a_fake_pause(self):
+        skill = self.entrypoint()
+        self.assertTrue(
+            has_positive_relationship(skill, "direct requests receive a direct response"),
+            "Direct requests need brief route disclosure followed by an answer in the same response",
+        )
+        self.assertRegex(skill.lower(), r"focused explanation")
+        self.assertRegex(skill.lower(), r"non-interactive report")
+
+    def test_abstract_only_access_limits_the_plan_and_claims(self):
+        self.assertTrue(
+            has_positive_relationship(self.entrypoint(), "abstract access limits the reading plan"),
+            "Abstract-only access must limit the reading plan and leave full-paper claims unverified",
         )
 
     def test_opening_contract_is_in_routed_workflow(self):
@@ -251,6 +298,27 @@ class ContractRelationshipChecks(unittest.TestCase):
             ("reversed ordering", "The first user-facing response must explain the session route after substantive paper analysis.", False),
             ("negated rule", "The first user-facing response must not explain the route before substantive paper analysis.", False),
             ("keywords only", "Opening, first response, route, before, substantive analysis.", False),
+        ))
+
+    def test_learning_default_requires_the_learning_condition(self):
+        self.check_cases("learning request defaults to guided learning", (
+            ("positive", "When a learner asks to learn a paper, guided learning is the default mode.", True),
+            ("unconditional", "Guided learning is the default mode for every request.", False),
+            ("negated", "When a learner asks to learn, guided learning is not the default mode.", False),
+        ))
+
+    def test_direct_route_requires_answering_without_a_pause(self):
+        self.check_cases("direct requests receive a direct response", (
+            ("positive", "For focused explanations or non-interactive reports, disclose a brief route and answer directly in the same response without a learner pause.", True),
+            ("fake pause", "For non-interactive reports, disclose a brief route and wait for the learner to answer before proceeding.", False),
+            ("omitted disclosure", "For focused explanations, answer directly in the same response without a learner pause.", False),
+        ))
+
+    def test_abstract_route_requires_a_limited_plan_and_claim_boundary(self):
+        self.check_cases("abstract access limits the reading plan", (
+            ("positive", "With abstract-only access, provide a limited reading plan and label full-paper claims as unverified.", True),
+            ("full plan", "With abstract-only access, provide a full reading plan and label full-paper claims as verified.", False),
+            ("omitted boundary", "With abstract-only access, provide a limited reading plan.", False),
         ))
 
     def test_guided_agreement_requires_positive_before_relationship(self):
