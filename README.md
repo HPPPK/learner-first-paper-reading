@@ -133,6 +133,17 @@ In Claude Code, use `/learner-first-paper-reading` with the same request. For a
 direct answer, explicitly ask for a focused explanation and provide the passage,
 equation, or figure.
 
+## See it in action
+
+The [curated examples](examples/README.md) show three distinct routes:
+
+- a guided DLinear opening that pauses for route agreement and original reading;
+- a direct, worked explanation of `y = Wx + b`; and
+- an evidence ledger that classifies a reported forward pass as state 3 only.
+
+They are inspectable demonstrations, not proof of universal behavior or measured
+learning outcomes.
+
 ## What is tested
 
 - **37 deterministic contract tests** check routing, explanation layers, source

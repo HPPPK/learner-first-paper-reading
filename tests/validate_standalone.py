@@ -27,6 +27,20 @@ REQUIRED_STANDALONE_FILES = (
     "examples/reproduction-evidence.md",
 )
 
+EXAMPLE_FILES = (
+    "examples/dlinear-guided-reading.md",
+    "examples/focused-equation.md",
+    "examples/reproduction-evidence.md",
+)
+
+GOVERNANCE_FILES = (
+    "CONTRIBUTING.md",
+    "CHANGELOG.md",
+    ".github/ISSUE_TEMPLATE/bug_report.yml",
+    ".github/ISSUE_TEMPLATE/feature_request.yml",
+    ".github/ISSUE_TEMPLATE/config.yml",
+)
+
 
 def markdown_relative_links(path: Path) -> list[str]:
     text = path.read_text(encoding="utf-8")
@@ -110,6 +124,65 @@ class StandaloneProjectContracts(unittest.TestCase):
                 if not resolved.exists():
                     missing.append(f"{path.relative_to(ROOT)} -> {target}")
         self.assertEqual([], missing, f"Broken relative links: {missing}")
+
+    def test_curated_examples_are_discoverable_and_evidence_labeled(self) -> None:
+        index = (ROOT / "examples" / "README.md").read_text(encoding="utf-8")
+        for relative in EXAMPLE_FILES:
+            path = ROOT / relative
+            self.assertTrue(path.is_file(), f"Missing curated example: {relative}")
+            self.assertIn(path.name, index)
+            text = path.read_text(encoding="utf-8")
+            self.assertRegex(text, r"(?i)evidence status")
+            for voice in ("Paper", "Background", "Analyst", "Unknown"):
+                self.assertIn(voice, text, f"{relative} must demonstrate the {voice} voice")
+        for readme in ("README.md", "README.zh-CN.md"):
+            text = (ROOT / readme).read_text(encoding="utf-8")
+            self.assertIn("examples/README.md", text)
+
+    def test_examples_demonstrate_three_distinct_routes_without_inflated_claims(self) -> None:
+        guided = (ROOT / EXAMPLE_FILES[0]).read_text(encoding="utf-8")
+        self.assertIn("https://arxiv.org/abs/2205.13504", guided)
+        self.assertRegex(guided, r"(?i)route agreement")
+        self.assertRegex(guided, r"(?i)(reading assignment|read now)")
+        self.assertRegex(guided, r"(?i)(illustrative|demonstration)")
+
+        focused = (ROOT / EXAMPLE_FILES[1]).read_text(encoding="utf-8")
+        self.assertIn("y = Wx + b", focused)
+        self.assertRegex(focused, r"(?i)(worked|numerical).{0,80}example")
+        self.assertRegex(focused, r"(?i)paper role.{0,120}unknown")
+
+        reproduction = (ROOT / EXAMPLE_FILES[2]).read_text(encoding="utf-8")
+        self.assertRegex(reproduction, r"(?i)reported state[- ]3")
+        self.assertRegex(reproduction, r"(?i)full reproduction.{0,160}(?:unverified|not established)")
+        for state in range(1, 7):
+            self.assertRegex(reproduction, rf"(?i)state {state}\b")
+
+    def test_contributor_and_release_files_enforce_evidence_boundaries(self) -> None:
+        for relative in GOVERNANCE_FILES:
+            self.assertTrue((ROOT / relative).is_file(), f"Missing governance file: {relative}")
+
+        contributing = (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
+        for phrase in (
+            "behavior change",
+            "validate_contract.py",
+            "validate_standalone.py",
+            "attribution",
+            "fabricated paper anchors",
+        ):
+            self.assertIn(phrase, contributing.lower())
+
+        changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        changelog_prose = " ".join(changelog.lower().split())
+        self.assertIn("[0.1.0]", changelog)
+        self.assertRegex(changelog_prose, r"do(?:es)? not establish.{0,120}learning outcomes")
+        self.assertRegex(changelog_prose, r"do(?:es)? not establish.{0,120}universal agent behavior")
+
+        issue_text = "\n".join(
+            (ROOT / relative).read_text(encoding="utf-8")
+            for relative in GOVERNANCE_FILES[2:]
+        ).lower()
+        self.assertIn("evidence", issue_text)
+        self.assertIn("source", issue_text)
 
 
 if __name__ == "__main__":

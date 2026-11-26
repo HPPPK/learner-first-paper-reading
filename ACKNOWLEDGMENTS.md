@@ -11,7 +11,9 @@ The upstream repository is
 [Norman Paper Reading directory](https://github.com/N-tongxue/norman-skill/tree/main/norman-paper-reading)
 provides the original research-reading workflow and tools.
 
-This fork preserves that relationship and adds a separate learner-first skill.
+This standalone project originated from a subtree split of a learner-first skill
+developed in a fork of the Norman repository. It preserves that provenance while
+remaining a separate project rather than an upstream Norman contribution.
 Norman's emphasis on reconstructing research, inspecting original figures, and
 checking evidence informed the design. Credit for Norman's instructions, tools,
 branding, and templates remains with their creators.
@@ -19,7 +21,7 @@ branding, and templates remains with their creators.
 No standard repository license was found in the upstream metadata or file tree
 checked on 2026-11-26. The README invites users to fork and build their own
 workflows; that invitation is not a standard MIT or other repository-wide license.
-The MIT notice in this directory does not apply to upstream content or establish
+The MIT notice in this repository does not apply to upstream content or establish
 permission to redistribute its components under MIT.
 
 ## Other conceptual references
@@ -35,8 +37,8 @@ the links below identify the source projects and their stated licenses.
 | DeerFlow `academic-paper-review` | [bytedance/deer-flow](https://github.com/bytedance/deer-flow), [academic-paper-review directory](https://github.com/bytedance/deer-flow/tree/main/skills/public/academic-paper-review) | [MIT](https://github.com/bytedance/deer-flow/blob/main/LICENSE) |
 | `verify-results` | [ShaishavMaisuria/research-paper-lifecycle-skills](https://github.com/ShaishavMaisuria/research-paper-lifecycle-skills), [verify-results directory](https://github.com/ShaishavMaisuria/research-paper-lifecycle-skills/tree/main/skills/verify-results) | [Apache-2.0](https://github.com/ShaishavMaisuria/research-paper-lifecycle-skills/blob/main/LICENSE) |
 
-The wording and organization of `learner-first-paper-reading/` are original.
+The wording and organization of this learner-first repository are original.
 These references are acknowledged as conceptual influences; their instructions,
 code, binaries, and templates are not bundled into this skill. Attribution does
-not imply endorsement by any upstream creator. The [directory license](LICENSE)
-covers only this skill's original files and leaves all upstream rights intact.
+not imply endorsement by any upstream creator. The [repository license](LICENSE)
+covers only this project's original files and leaves all upstream rights intact.

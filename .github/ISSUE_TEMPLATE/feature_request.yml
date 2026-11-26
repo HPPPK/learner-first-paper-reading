@@ -1,0 +1,31 @@
+name: Workflow improvement
+description: Propose a learner-facing improvement with an evidence-bounded use case.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: learner_problem
+    attributes:
+      label: Learner problem
+      description: What reading, explanation, review, or reproduction difficulty should change?
+    validations:
+      required: true
+  - type: textarea
+    id: route
+    attributes:
+      label: Proposed route change
+      description: Describe the smallest behavior change and where it belongs.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence or source
+      description: Link supporting examples or references and separate them from your own proposal.
+    validations:
+      required: true
+  - type: textarea
+    id: evaluation
+    attributes:
+      label: Observable evaluation
+      description: What fresh-context scenario would distinguish success from a polished but incorrect response?

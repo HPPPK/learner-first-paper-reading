@@ -1,7 +1,7 @@
-Scope: This license applies only to original files under the
-learner-first-paper-reading/ directory. It does not apply to sibling directories
-or upstream Norman instructions, binaries, branding, templates, or other files.
-Their existing rights and notices remain unchanged.
+Scope: This license applies only to original files in this standalone repository.
+It does not apply to or relicense upstream Norman instructions, binaries,
+branding, templates, or other upstream material. Their existing rights and
+notices remain unchanged.
 
 MIT License
 

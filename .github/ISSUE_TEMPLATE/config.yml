@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Read the workflow and evidence limits
+    url: https://github.com/HPPPK/learner-first-paper-reading#readme
+    about: Check the supported routes, source boundaries, and tested conditions before filing.

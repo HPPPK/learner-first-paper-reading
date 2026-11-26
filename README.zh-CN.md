@@ -122,6 +122,16 @@ Use $learner-first-paper-reading to help me learn the attached paper.
 在 Claude Code 中可以用 `/learner-first-paper-reading`。如果只想立即解释一个
 公式或段落，请明确说“直接解释”，不需要进入多轮引导流程。
 
+## 查看实际示例
+
+[三个精选示例](examples/README.md)分别展示：
+
+- DLinear 引导式开场，先确认路线，再把阅读任务交还给学习者；
+- 对 `y = Wx + b` 的直接机制讲解和手算例子；
+- 把一次用户报告的 forward pass 严格记录为 state 3，而不是“复现成功”。
+
+这些是可检查的演示，不是所有 Agent 都会稳定遵守流程或学习效果已提升的证据。
+
 ## 测试与证据
 
 - **37 项 deterministic contract tests** 检查模式路由、解释层次、来源边界、

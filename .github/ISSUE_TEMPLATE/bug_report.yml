@@ -1,0 +1,34 @@
+name: Behavior or packaging bug
+description: Report an observable failure with enough source and evidence to reproduce it.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping us distinguish observed behavior from expectations.
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: What happened? Include the exact prompt or command and the relevant output.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Which documented contract or source supports the expectation?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and environment
+      description: Agent host, model if known, skill revision, source access, logs, and reproduction steps.
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Unknowns and privacy check
+      description: What remains unverified? Remove secrets and identifying data before submitting.

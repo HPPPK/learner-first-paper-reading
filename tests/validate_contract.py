@@ -502,7 +502,7 @@ class SkillContract(unittest.TestCase):
             "full reproduction": r"full reproduction",
         })
 
-    def test_license_and_acknowledgments_are_directory_scoped(self):
+    def test_license_and_acknowledgments_are_standalone_repository_scoped(self):
         license_text = self.read("LICENSE")
         readme = self.read("README.md")
         acknowledgments = self.read("ACKNOWLEDGMENTS.md")
@@ -510,8 +510,13 @@ class SkillContract(unittest.TestCase):
         self.assertIn("Permission is hereby granted, free of charge", license_text)
         self.assertRegex(
             (license_text + "\n" + readme).lower(),
-            r"(?:this|new|learner-first-paper-reading/?)[^\n.]{0,90}directory",
-            "License or README must state the directory scope",
+            r"(?:this|standalone)[^\n.]{0,90}repository",
+            "License or README must state the standalone repository scope",
+        )
+        self.assertRegex(
+            (license_text + "\n" + acknowledgments).lower(),
+            r"does not (?:apply to|relicense|cover).{0,120}upstream",
+            "The repository license must leave acknowledged upstream rights intact",
         )
         self.assertRegex(acknowledgments, r"N-tongxue/norman-skill|github\.com/N-tongxue/norman-skill")
 
