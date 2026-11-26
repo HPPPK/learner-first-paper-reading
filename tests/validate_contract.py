@@ -515,6 +515,69 @@ class SkillContract(unittest.TestCase):
         )
         self.assertRegex(acknowledgments, r"N-tongxue/norman-skill|github\.com/N-tongxue/norman-skill")
 
+    def test_readme_provides_installation_usage_and_honest_scope(self):
+        path = ROOT / "README.md"
+        self.assertTrue(path.is_file(), "Public installation guidance requires README.md")
+        readme = path.read_text(encoding="utf-8")
+        prose = " ".join(readme.lower().split())
+        self.assertIn("https://github.com/HPPPK/norman-skill", readme)
+        for label, pattern in {
+            "Codex destination": r"~/\.codex/skills/learner-first-paper-reading",
+            "Claude-compatible destination": r"~/\.claude/skills/learner-first-paper-reading",
+            "fork subdirectory source": r"norman-skill/learner-first-paper-reading",
+            "explicit invocation": r"\$learner-first-paper-reading",
+            "automatic discovery": r"automatic discovery.{0,140}(?:host|client)",
+            "optional Norman integration": r"norman.{0,160}optional|optional.{0,160}norman",
+            "independent fallback": r"works without norman",
+            "upstream license exclusion": r"does not (?:apply to|cover).{0,120}(?:upstream|sibling)",
+            "testing boundary": r"static.{0,120}(?:cannot|does not).{0,100}(?:behavior|learning)",
+        }.items():
+            with self.subTest(requirement=label):
+                self.assertRegex(prose, pattern)
+        for mode in ("guided learning", "quick orientation", "deep evidence review",
+                     "implementation/reproduction", "focused explanation"):
+            with self.subTest(mode=mode):
+                self.assertIn(mode, prose)
+
+    def test_acknowledgments_credit_every_source_and_its_license_status(self):
+        path = ROOT / "ACKNOWLEDGMENTS.md"
+        self.assertTrue(path.is_file(), "Public attribution requires ACKNOWLEDGMENTS.md")
+        acknowledgments = path.read_text(encoding="utf-8")
+        self.assertRegex(acknowledgments, r"N同学|耐心的N同学")
+        self.assertRegex(acknowledgments.lower(), r"wording and organization.{0,80}original")
+        rows = [line for line in acknowledgments.splitlines() if line.startswith("|")]
+        for repo, skill, license_name in (
+            ("v0lka/skills", "study-paper", "MIT"),
+            ("CUTEPKQ/paper-reading", "paper-reading", "MIT"),
+            ("bytedance/deer-flow", "academic-paper-review", "MIT"),
+            ("ShaishavMaisuria/research-paper-lifecycle-skills", "verify-results", "Apache-2.0"),
+        ):
+            with self.subTest(inspiration=skill):
+                matching_rows = [row for row in rows if f"https://github.com/{repo}" in row and skill in row]
+                self.assertTrue(matching_rows, f"Link and identify {skill} in its attribution row")
+                self.assertTrue(any(license_name in row and "/LICENSE" in row for row in matching_rows),
+                                f"Identify and link the known {license_name} license for {skill}")
+        self.assertRegex(
+            " ".join(acknowledgments.lower().split()),
+            r"no standard repository license.{0,100}(?:found|identified)",
+            "Do not invent an upstream Norman license",
+        )
+
+    def test_all_production_markdown_relative_links_resolve(self):
+        for relative in PRODUCTION_FILES:
+            if not relative.endswith(".md") or not (ROOT / relative).is_file():
+                continue
+            path = ROOT / relative
+            for target in re.findall(r"\[[^\]]+\]\(([^\s)]+)(?:\s+\"[^\"]*\")?\)",
+                                     path.read_text(encoding="utf-8")):
+                parts = urlsplit(target.strip("<>"))
+                if parts.scheme or parts.netloc or not parts.path:
+                    continue
+                with self.subTest(file=relative, target=target):
+                    resolved = (path.parent / unquote(parts.path)).resolve()
+                    self.assertTrue(resolved.is_relative_to(ROOT), "Keep package links portable inside the skill")
+                    self.assertTrue(resolved.exists(), f"Broken relative link: {relative} -> {target}")
+
     def test_production_files_have_no_unfinished_scaffolding(self):
         # Test prompts and evaluator records are excluded: they can quote defects.
         markers = re.compile(
