@@ -200,6 +200,95 @@ def scalar(frontmatter, key):
     return None
 
 
+def task4_contract_errors(text, contract):
+    """Conservative directive coverage; this does not establish agent behavior.
+
+    Each pattern encodes an action and its object/condition. Headings alone
+    cannot satisfy it. Scenario evaluation must still test the consuming agent.
+    """
+    prose = " ".join(re.sub(r"[*_`]", "", text.lower()).split())
+    rules = {
+        "evidence": {
+            "Paper attribution": r"paper: attribute.{0,90}explicit.{0,90}inspected.{0,50}anchor",
+            "Background attribution": r"background: attribute.{0,100}external.{0,100}authoritative.{0,50}link",
+            "Analyst attribution": r"analyst: mark.{0,100}(?:inference|interpretation).{0,70}your own",
+            "Unknown attribution": r"unknown: state.{0,100}available evidence does not establish",
+            "claim evidence boundary connection": r"for each load-bearing claim, record.{0,100}anchor.{0,160}evidence.{0,160}direct observation.{0,160}support strength.{0,160}conditions.{0,160}alternative explanations.{0,160}unknowns",
+            "unit check": r"identify.{0,70}unit of analysis.{0,140}independent.{0,140}repeated.{0,140}uncertainty",
+            "fair comparison": r"compare.{0,70}baselines.{0,140}split.{0,140}preprocessing.{0,140}metric.{0,140}tuning.{0,140}compute",
+            "guided gate": r"in guided mode, enter reviewer-style critique only after the learner can accurately reconstruct.{0,80}question.{0,80}method.{0,80}evidence.{0,80}scope",
+            "failed gate": r"if comprehension is incomplete, defer.{0,80}paper-specific.{0,80}criticism.{0,140}one.{0,70}question",
+            "evidence-tied criticism": r"tie every criticism to.{0,100}inspected.{0,80}evidence or.{0,80}missing detail",
+            "no flaw quota": r"do not invent.{0,80}(?:flaws|defects).{0,80}quota",
+        },
+        "visual": {
+            "original before description": r"inspect the original.{0,50}(?:figure|table).{0,100}before.{0,70}describ",
+            "unavailable disclosure": r"if.{0,70}(?:unreadable|unavailable).{0,100}disclose.{0,140}(?:cannot|cannot be).{0,70}(?:check|read|observe)",
+            "no fabricated observations": r"do not invent.{0,70}(?:visual )?observations",
+            "purpose": r"1\. purpose: identify.{0,100}(?:question|comparison)",
+            "encoding": r"2\. axes/units/legend: read.{0,140}axes.{0,100}units.{0,100}legend.{0,100}table",
+            "literal before interpretation": r"3\. literal observations: describe.{0,140}(?:values|patterns).{0,140}separate.{0,100}interpretation",
+            "author interpretation": r"4\. author interpretation: attribute.{0,140}authors.{0,100}(?:caption|text)",
+            "supported claim": r"5\. supported claim: connect.{0,100}observation.{0,100}anchored claim",
+            "boundary": r"6\. boundary: state.{0,100}(?:conditions|limits).{0,100}does not establish",
+        },
+        "equation": {
+            "purpose": r"1\. purpose: explain.{0,100}(?:problem|need).{0,100}equation",
+            "symbols and dimensions": r"2\. symbols and dimensions: define.{0,100}symbol.{0,100}(?:shape|dimension).{0,100}units",
+            "operation": r"3\. operation: trace.{0,100}inputs.{0,100}(?:operations|steps).{0,100}outputs",
+            "worked example": r"4\. hand-checkable example: give.{0,100}(?:small|toy|numerical).{0,100}intermediate.{0,100}result",
+            "assumptions": r"5\. assumptions: state.{0,100}(?:conditions|assumptions).{0,100}(?:valid|holds)",
+            "paper role": r"6\. paper role: connect.{0,100}inspected.{0,100}(?:anchor|equation).{0,100}(?:method|derivation)",
+            "conditional implementation": r"7\. code mapping when relevant: when.{0,100}(?:implementation|code|reproduction).{0,100}map.{0,100}(?:symbol|operation).{0,100}(?:file|function).{0,100}(?:shape|dimension)",
+        },
+        "reproduction": {
+            "no binary collapse": r"keep exactly these six states distinct.{0,200}do not collapse.{0,100}reproduced/not-reproduced",
+            "evidence transition": r"advance.{0,100}state only when.{0,100}evidence.{0,100}inspected.{0,150}unverified",
+            "independent state support": r"a later state does not automatically establish earlier states",
+            "smoke is 3 only": r"(?:forward/shape|forward) smoke test supports state 3 only",
+            "user execution attribution": r"label user-reported execution.{0,100}reported.{0,140}independently verified execution.{0,140}inspected.{0,100}(?:logs|run)",
+            "single metric boundary": r"one matching metric does not establish full reproduction",
+            "alignment before training": r"before training, check.{0,100}paper.{0,100}code.{0,100}data.{0,100}protocol",
+        },
+        "note": {
+            "learner ownership": r"learner-owned.{0,160}optional",
+            "learner before AI": r"record your own interpretation before.{0,70}ai synthesis",
+            "unanswered remains": r"keep unanswered fields.{0,80}unanswered.{0,100}unresolved questions.{0,100}remain",
+            "claims anchored": r"claim.{0,80}anchor.{0,100}evidence.{0,100}observation.{0,100}boundary.{0,100}unknown",
+            "questions": r"questions i still have",
+        },
+    }
+    def affirmative_match(pattern):
+        for match in re.finditer(pattern, prose):
+            prefix = prose[max(0, match.start() - 30):match.start()]
+            if not re.search(r"(?:do not|never|skip|optional to)\s*$", prefix):
+                return True
+        return False
+
+    return [label for label, pattern in rules[contract].items() if not affirmative_match(pattern)]
+
+
+def reproduction_state_errors(text):
+    """Check each state has its own evidence and boundary, not just a name."""
+    rows = re.findall(r"^\|\s*(\d+)\s*\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|\s*$", text, re.MULTILINE)
+    expected = (
+        ("conceptual understanding", r"explain.*question.*method.*evidence.*scope", r"execution"),
+        ("paper-to-code mapping", r"inspect.*anchor.*file.*operation.*shape", r"run"),
+        ("forward/shape validation", r"inspect.*input.*output.*finite.*log", r"training.*metric"),
+        ("small-scale training", r"inspect.*data.*loss.*update.*checkpoint", r"benchmark"),
+        ("metric consistency with the paper", r"inspect.*split.*preprocessing.*metric.*tolerance.*result", r"one.*setting.*full"),
+        ("full reproduction across reported settings", r"inspect.*all.*settings.*seeds.*uncertainty.*deviations", r"scope"),
+    )
+    errors = []
+    if [row[0] for row in rows] != list("123456"):
+        return ["exactly six numbered state rows in order"]
+    for row, (name, evidence, boundary) in zip(rows, expected):
+        _, actual_name, actual_evidence, actual_boundary = (part.strip().lower() for part in row)
+        if actual_name != name or not re.search(evidence, actual_evidence) or not re.search(boundary, actual_boundary):
+            errors.append(f"state {row[0]} needs its distinct name, evidence, and boundary")
+    return errors
+
+
 class SkillContract(unittest.TestCase):
     def entrypoint(self):
         path = ROOT / "SKILL.md"
@@ -597,6 +686,78 @@ class ContractRelationshipChecks(unittest.TestCase):
             ("reversed ordering", "Perform critical review before the learner demonstrates accurate comprehension.", False),
             ("negated rule", "Do not enter reviewer-style critique only after the learner can accurately reconstruct the paper.", False),
         ))
+
+
+class Task4ContentContracts(unittest.TestCase):
+    """Static coverage for evidence relationships; fresh scenarios test behavior."""
+
+    def content(self, relative):
+        path = ROOT / relative
+        self.assertTrue(path.is_file(), f"Task 4 requires {relative}")
+        return path.read_text(encoding="utf-8")
+
+    def assert_contract(self, text, contract):
+        self.assertEqual(task4_contract_errors(text, contract), [], f"Incomplete {contract} instructions")
+
+    def test_evidence_voices_mapping_and_guided_review_gate(self):
+        evidence = self.content("references/evidence-and-review.md")
+        self.assert_contract(evidence, "evidence")
+
+    def test_figures_require_original_inspection_and_ordered_evidence_reading(self):
+        visual = self.content("references/figures-and-equations.md")
+        self.assert_contract(visual, "visual")
+        self.assertEqual(
+            re.findall(r"^(\d+)\. ", visual, re.MULTILINE),
+            list("1234561234567"),
+            "Visual and equation steps must retain their teaching order",
+        )
+
+    def test_equations_require_operation_example_and_conditional_code_mapping(self):
+        equations = self.content("references/figures-and-equations.md")
+        self.assert_contract(equations, "equation")
+
+    def test_reproduction_preserves_six_evidence_bounded_states(self):
+        reproduction = self.content("references/reproduction-levels.md")
+        self.assert_contract(reproduction, "reproduction")
+        self.assertEqual(reproduction_state_errors(reproduction), [])
+
+    def test_optional_note_starts_with_learner_interpretation_and_keeps_unknowns(self):
+        note = self.content("assets/reading-note-template.md")
+        self.assert_contract(note, "note")
+        sections = re.findall(r"^## (.+)$", note, re.MULTILINE)
+        self.assertTrue(sections)
+        self.assertIn("my interpretation", sections[0].lower())
+        self.assertLess(note.index("## My interpretation"), note.index("## AI synthesis"))
+
+    def test_negative_mutations_cannot_keep_headings_and_remove_relationships(self):
+        cases = (
+            ("references/evidence-and-review.md", "evidence", "only after the learner can accurately reconstruct", "before the learner can accurately reconstruct", "guided gate"),
+            ("references/evidence-and-review.md", "evidence", "Background: Attribute", "Background: Mention", "Background attribution"),
+            ("references/evidence-and-review.md", "evidence", "Tie every criticism to", "List criticisms without", "evidence-tied criticism"),
+            ("references/figures-and-equations.md", "visual", "Inspect the original", "Do not inspect the original", "original before description"),
+            ("references/figures-and-equations.md", "visual", "3. Literal observations: Describe", "3. Literal observations: Mention", "literal before interpretation"),
+            ("references/figures-and-equations.md", "equation", "4. Hand-checkable example: Give", "4. Hand-checkable example: Omit", "worked example"),
+            ("references/figures-and-equations.md", "equation", "7. Code mapping when relevant: When", "7. Code mapping when relevant: Ignore when", "conditional implementation"),
+            ("references/reproduction-levels.md", "reproduction", "smoke test supports state 3 only", "smoke test supports state 6", "smoke is 3 only"),
+            ("references/reproduction-levels.md", "reproduction", "Label user-reported execution", "Ignore user-reported execution", "user execution attribution"),
+            ("assets/reading-note-template.md", "note", "Record your own interpretation before", "Record your own interpretation after", "learner before AI"),
+        )
+        for relative, contract, original, replacement, missing in cases:
+            with self.subTest(mutation=missing):
+                text = " ".join(re.sub(r"[*_`]", "", self.content(relative)).split())
+                self.assertIn(original, text, "Mutation fixture must actually change the source")
+                mutated = text.replace(original, replacement, 1)
+                self.assertIn(missing, task4_contract_errors(mutated, contract))
+
+    def test_state_rows_reject_missing_evidence_and_merged_states(self):
+        reproduction = self.content("references/reproduction-levels.md")
+        # A heading plus six state names cannot supply transition evidence.
+        empty_evidence = re.sub(r"(?m)^(\| [1-6] \| [^|]+\|)[^|]+", r"\1 Evidence ", reproduction)
+        self.assertEqual(len(reproduction_state_errors(empty_evidence)), 6)
+        missing_state = re.sub(r"(?m)^\| 5 \|.*\n", "", reproduction)
+        self.assertEqual(reproduction_state_errors(missing_state), ["exactly six numbered state rows in order"])
+        extra_state = reproduction + "\n| 7 | Extra state | Inspect extra evidence | Extra scope |\n"
+        self.assertEqual(reproduction_state_errors(extra_state), ["exactly six numbered state rows in order"])
 
 
 if __name__ == "__main__":
