@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-26
+
+### Fixed
+
+- Pinned the validation runner to Ubuntu 24.04 so the declared Python 3.9 job
+  remains available after `ubuntu-latest` moved to Ubuntu 26.04.
+- Updated checkout and Python setup to their current Node 24 action releases,
+  removing the Node 20 deprecation warning.
+
 ## [0.1.0] - 2026-11-26
 
 ### Added
@@ -26,5 +35,6 @@ universal agent behavior, automatic discovery, or compatibility on every Agent
 Skill host. See [evaluation results](tests/evaluation-results.md)
 for the tested conditions and missing evidence.
 
-[Unreleased]: https://github.com/HPPPK/learner-first-paper-reading/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/HPPPK/learner-first-paper-reading/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/HPPPK/learner-first-paper-reading/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/HPPPK/learner-first-paper-reading/releases/tag/v0.1.0
