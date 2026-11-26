@@ -1,203 +1,180 @@
+<p align="center">
+  <img src="assets/hero.svg" alt="Learner-First Paper Reading — AI scaffolds. You read. Evidence decides." width="100%">
+</p>
+
+<p align="center">
+  <a href="README.zh-CN.md">简体中文</a> ·
+  <a href="#quick-start">Quick start</a> ·
+  <a href="tests/evaluation-results.md">Evaluation</a> ·
+  <a href="ACKNOWLEDGMENTS.md">Acknowledgments</a>
+</p>
+
 # Learner-First Paper Reading
 
-An Agent Skill for learning to read a research paper with AI support. It is for
-capable beginners who can reason carefully but may be new to the paper's field.
-The aim is to explain the research question, method, evidence, and valid scope
-in your own words.
+**AI scaffolds. You read. Evidence decides.**
 
-This original skill lives in the `learner-first-paper-reading/` subdirectory of
-[HPPPK/norman-skill](https://github.com/HPPPK/norman-skill), a fork of
-[Norman-Skill](https://github.com/N-tongxue/norman-skill). See
-[ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md) for the upstream creator and inspirations.
+An Agent Skill for people who want to understand a research paper rather than
+receive another polished summary. It teaches only the prerequisites needed for
+the next passage, sends the learner back to the original source, checks their
+explanation, and keeps claims inside the evidence actually inspected.
 
-## How a session works
+The intended finish line is simple: you can explain the paper's problem, method,
+evidence, and valid scope in your own words.
 
-The assistant first explains the proposed route, your role, its role, the source
-available, pause points, and the intended outcome. In guided learning, you agree
-on that route before teaching begins.
+## Why learner-first?
 
-1. Learn only the prerequisites needed for the next selected passage, with a
-   small worked example and precise assumptions.
-2. Read the original section or visual and record your own interpretation.
-3. Explain it back, one consequential question at a time. Correct answers allow
-   progress; demonstrated gaps receive targeted teaching and a return to the source.
-4. Connect claims to inspected evidence and boundaries. Begin reviewer criticism
-   after you can reconstruct the question, method, evidence, and scope.
-5. Finish with a closed-book explanation and explicit unresolved questions. If
-   implementing the method, record the exact verification state separately.
+A summary-first assistant can make an unfamiliar paper feel clear while leaving
+the reader unable to reconstruct it. This workflow changes who does the central
+intellectual work.
 
-Throughout, **Paper**, **Background**, **Analyst**, and **Unknown** distinguish the
-paper's statements, external teaching material, AI interpretation, and missing
-evidence. The optional [reading note](assets/reading-note-template.md) keeps your
-initial answers before AI synthesis.
-
-| Mode | Use it for |
+| Summary-first interaction | Learner-first interaction |
 | --- | --- |
-| Guided learning (default for learning requests) | Stepwise original reading, prerequisite teaching, and teach-back. |
-| Quick orientation | Source identity, a prerequisite map, a selective reading route, and a first question. |
-| Deep evidence review | Claims, comparisons, uncertainty, and evidence-tied criticism after reconstruction. |
-| Implementation/reproduction | Paper-to-code mapping and separate evidence for six verification states. |
-| Focused explanation | One concept, passage, equation, figure, or table explained directly. |
+| AI gives the complete interpretation | AI proposes a route and teaches the minimum prerequisite |
+| The paper becomes optional | The learner reads a short, located passage or visual |
+| Confidence substitutes for evidence | **Paper**, **Background**, **Analyst**, and **Unknown** stay separate |
+| Criticism arrives before understanding | Reviewer-style criticism waits for a comprehension gate |
+| “The code ran” becomes “reproduced” | Reproduction is recorded across six evidence states |
 
-For a focused explanation or explicit non-interactive report, the assistant
-briefly discloses the route and answers in the same response. These requests
-do not require an agreement pause or a pretend learner exchange.
+## A 30-second example
 
-## Install only this skill
+> **Learner:** I am new to time-series forecasting. Help me read the DLinear
+> paper step by step.
+>
+> **Assistant:** Our goal is for you to explain the research question, method,
+> and evidence independently. I will first verify the source, teach only the
+> background needed for one short passage, and then pause for your reading and
+> interpretation. You will read the original material and explain it back. Does
+> that route fit your goal?
 
-Keep the complete subdirectory together, including `references/`, `assets/`, and
-`agents/`. Copying `SKILL.md` alone loses required instructions. There are no
-runtime scripts, bundled model, PDF engine, or API credentials in this skill.
-The host supplies its normal file, PDF, browser, and optional execution tools.
+The pause is intentional. The assistant has not replaced the paper or the
+learner's interpretation.
 
-Choose one acquisition route in an unused working directory. With Git installed,
-these commands work in a macOS/Linux terminal or Windows PowerShell:
+## How it works
+
+<p align="center">
+  <img src="assets/workflow.svg" alt="Source, scaffold, read, teach back, evidence check" width="100%">
+</p>
+
+1. **Set the route.** State the learner's goal, assumed level, source coverage,
+   roles, pauses, and completion target before substantive guided analysis.
+2. **Bridge one prerequisite.** Explain the problem, mechanism, a small example,
+   the precise definition, the paper role, and the boundary.
+3. **Return to the paper.** Assign one located passage, figure, table, or equation
+   and one consequential question.
+4. **Use teach-back.** Accurate explanations move forward; demonstrated gaps get
+   targeted reteaching and another look at the source.
+5. **Audit evidence.** Connect claims to inspected evidence and limits. Finish
+   with a closed-book explanation and explicit unknowns.
+
+### Four voices
+
+| Voice | Meaning |
+| --- | --- |
+| **Paper** | What the inspected focal source states or shows, with a location. |
+| **Background** | External knowledge used for teaching, linked when useful. |
+| **Analyst** | The assistant's interpretation, synthesis, or recommendation. |
+| **Unknown** | Evidence that is missing, inaccessible, or not yet inspected. |
+
+## Modes
+
+- **Guided learning** — the default when someone asks to learn a paper.
+- **Quick orientation** — source identity, prerequisite map, selective route, and
+  first reading question.
+- **Focused explanation** — explain one passage, formula, figure, or concept now,
+  without forcing a guided session.
+- **Deep evidence review** — claim, comparison, uncertainty, and limitation review
+  after the method and evidence have been reconstructed.
+- **Implementation/reproduction** — paper-to-code mapping and six distinct
+  evidence states, from conceptual understanding to full reported coverage.
+
+## Quick start
+
+This repository root is the complete skill. Keep `SKILL.md`, `references/`,
+`assets/`, and `agents/` together.
+
+### Install with Codex
+
+Ask the skill installer:
+
+```text
+Install the Agent Skill from https://github.com/HPPPK/learner-first-paper-reading
+```
+
+Or clone it into the personal skill directory documented by your Codex host:
 
 ```bash
-git clone https://github.com/HPPPK/norman-skill.git
-cd norman-skill
+git clone https://github.com/HPPPK/learner-first-paper-reading.git \
+  ~/.agents/skills/learner-first-paper-reading
 ```
 
-Alternatively, download and extract the main-branch ZIP. Its root directory is
-`norman-skill-main/`. On macOS/Linux:
+Some Codex installations use `~/.codex/skills/` instead of
+`~/.agents/skills/`. Use the location documented by your client and install the
+skill once to avoid duplicate names.
+
+### Install with Claude Code
 
 ```bash
-curl -fL https://github.com/HPPPK/norman-skill/archive/refs/heads/main.zip -o norman-skill-main.zip
-unzip norman-skill-main.zip
-cd norman-skill-main
+git clone https://github.com/HPPPK/learner-first-paper-reading.git \
+  ~/.claude/skills/learner-first-paper-reading
 ```
 
-On Windows PowerShell:
+Other Agent Skills hosts may use different locations and invocation syntax.
+Compatibility is not a claim that every host has been tested.
 
-```powershell
-Invoke-WebRequest -Uri https://github.com/HPPPK/norman-skill/archive/refs/heads/main.zip -OutFile norman-skill-main.zip
-Expand-Archive -LiteralPath norman-skill-main.zip -DestinationPath .
-Set-Location norman-skill-main
-```
-
-Both routes leave your terminal in the repository root, with
-`./learner-first-paper-reading` as the source. Run your host's copy commands
-below from there. They stop if the destination already exists, including a
-symbolic link; review an existing installation before replacing it.
-
-### Codex
-
-The [official OpenAI skill documentation](https://learn.chatgpt.com/docs/build-skills)
-lists `~/.agents/skills/` as the user skill location. On macOS/Linux:
-
-```bash
-test ! -e ~/.agents/skills/learner-first-paper-reading &&
-test ! -L ~/.agents/skills/learner-first-paper-reading &&
-mkdir -p ~/.agents/skills &&
-cp -R ./learner-first-paper-reading ~/.agents/skills/learner-first-paper-reading
-```
-
-On Windows PowerShell:
-
-```powershell
-$skillDirectory = Join-Path $HOME '.agents/skills'
-$destination = Join-Path $skillDirectory 'learner-first-paper-reading'
-if (Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue) { throw "Destination already exists: $destination" }
-New-Item -ItemType Directory -Path $skillDirectory -Force | Out-Null
-Copy-Item -LiteralPath .\learner-first-paper-reading -Destination $destination -Recurse
-```
-
-Some Codex installations, including the bundled skill-installer layout used to
-develop this package, use `~/.codex/skills/learner-first-paper-reading`. If that
-is your client's skill location, replace `.agents` with `.codex` in the commands
-for your platform. Install in one location to avoid duplicate names.
-You can also ask Codex's `$skill-installer` to install only the
-`learner-first-paper-reading` subdirectory from `HPPPK/norman-skill`.
-
-### Claude-compatible hosts
-
-[Claude Code](https://code.claude.com/docs/en/skills) supports personal skills in
-`~/.claude/skills/`. On macOS/Linux:
-
-```bash
-test ! -e ~/.claude/skills/learner-first-paper-reading &&
-test ! -L ~/.claude/skills/learner-first-paper-reading &&
-mkdir -p ~/.claude/skills &&
-cp -R ./learner-first-paper-reading ~/.claude/skills/learner-first-paper-reading
-```
-
-On Windows PowerShell:
-
-```powershell
-$skillDirectory = Join-Path $HOME '.claude/skills'
-$destination = Join-Path $skillDirectory 'learner-first-paper-reading'
-if (Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue) { throw "Destination already exists: $destination" }
-New-Item -ItemType Directory -Path $skillDirectory -Force | Out-Null
-Copy-Item -LiteralPath .\learner-first-paper-reading -Destination $destination -Recurse
-```
-
-Other Claude-compatible hosts may have different import locations and invocation
-syntax. Use their documented Agent Skills support; compatibility is not a claim
-that every client has been tested. Local personal skills do not automatically
-become available in hosted or cloud sessions.
-
-## Start reading
-
-Open a fresh session if the client has not discovered the new folder. In Codex,
-invoke the skill explicitly:
+### Start a paper
 
 ```text
 Use $learner-first-paper-reading to help me learn the attached paper.
-I'm new to this field. Start with a proposed route, teach the prerequisites
-for one short reading assignment, and pause for my own interpretation.
+I am new to this field. Propose a route, teach the prerequisites for one short
+reading assignment, and pause for my own interpretation.
 ```
 
 In Claude Code, use `/learner-first-paper-reading` with the same request. For a
-direct explanation, say so and provide the passage or equation. Include a PDF,
-official paper link, or excerpt and your goal when available.
+direct answer, explicitly ask for a focused explanation and provide the passage,
+equation, or figure.
 
-Automatic discovery remains enabled; the host decides whether a request matches
-the skill description. If it is not selected, invoke it explicitly and check that
-the complete folder is in the host's supported skill location.
+## What is tested
+
+- **37 deterministic contract tests** check routing, explanation layers, source
+  boundaries, evidence voices, figures, equations, reproduction states, links,
+  attribution, and packaging.
+- **Seven sampled behavior scenarios** cover guided DLinear reading, direct
+  equation explanation, prerequisite sourcing, misconception correction,
+  premature criticism, a forward smoke test, and abstract-only access.
+- The abstract-only scenario initially missed a future full-text reading plan;
+  the narrow correction and a neighboring critique-deferral case were rerun.
+
+These checks do not establish universal agent behavior, automatic discovery
+across clients, or improved learning outcomes. No completed controlled learning
+study is claimed. See the [scenario rubric](tests/scenarios.md),
+[baseline controls](tests/baseline-observations.md), and
+[with-skill evaluation](tests/evaluation-results.md).
+
+Run the deterministic suites from the repository root:
+
+```bash
+python3 tests/validate_contract.py
+python3 tests/validate_standalone.py
+```
 
 ## Optional Norman integration
 
 [Norman Paper Reading](https://github.com/N-tongxue/norman-skill/tree/main/norman-paper-reading)
-is an optional integration for PDF extraction, original-figure rendering, and
-source mapping through its documented interface. Install it separately if wanted
-and follow its own usage and rights information. This workflow works without
-Norman, using the host's normal tools. Neither extraction nor an available PDF
-establishes that the full paper has been inspected.
+can optionally provide its documented PDF extraction, original-figure rendering,
+and source-mapping workflow. This skill works without Norman and does not bundle
+its instructions, tools, binaries, branding, or templates. See
+[ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md) for provenance and license boundaries.
 
-## Limits and testing status
+## Limits
 
-This package contains instructions, not an enforcement mechanism. Source access,
-visual inspection, citations, and execution depend on the host and permissions.
-Abstract-only input supports a limited plan, not full-paper conclusions.
-A forward test or one matching metric does not establish full reproduction.
+This repository contains instructions, not a model or enforcement mechanism.
+Source access, visual inspection, citations, and code execution depend on the
+host and its permissions. Abstract-only material supports an abstract-only plan.
+A successful forward pass or one matching metric does not establish full
+reproduction.
 
-The [static validator](tests/validate_contract.py) checks structure, instruction
-coverage, package links, and attribution. Static validation cannot establish
-agent behavior or learner understanding. The [scenario rubric](tests/scenarios.md)
-defines seven fresh-context behavior checks, and the
-[baseline observations](tests/baseline-observations.md) record three no-skill
-controls. The [with-skill evaluation](tests/evaluation-results.md) records seven
-sampled scenarios. All passed the exercised criteria after correcting and
-freshly rerunning the abstract-only case, which initially omitted a future
-full-text reading plan; a neighboring critique-deferral case was also rerun.
-A separate explicit installed-path DLinear opening smoke observed process
-disclosure and a route-agreement pause. Cross-client compatibility and automatic
-discovery across clients were not established. Neither a completed full-paper
-learning session nor improved learning outcomes are established by these checks.
+## License
 
-From the repository root, run the package checks with Python 3.9 or newer:
-
-```bash
-python3 learner-first-paper-reading/tests/validate_contract.py
-```
-
-If Codex's skill-creator is installed, also run its `scripts/quick_validate.py`
-against `learner-first-paper-reading/` using the script's actual installed path.
-Use the scenario rubric to assess behavior separately.
-
-## License scope
-
-The [MIT License](LICENSE) applies only to the original files under this
-`learner-first-paper-reading/` directory. It does not cover sibling directories
-or upstream Norman files, binaries, branding, or templates. Their rights and
-notices remain separate; this directory does not relicense the repository.
+The original files in this standalone repository are available under the
+[MIT License](LICENSE). Acknowledged upstream projects retain their own rights;
+this repository does not relicense upstream projects or imply endorsement by them.

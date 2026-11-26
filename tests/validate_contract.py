@@ -520,17 +520,17 @@ class SkillContract(unittest.TestCase):
         self.assertTrue(path.is_file(), "Public installation guidance requires README.md")
         readme = path.read_text(encoding="utf-8")
         prose = " ".join(readme.lower().split())
-        self.assertIn("https://github.com/HPPPK/norman-skill", readme)
+        self.assertIn("https://github.com/HPPPK/learner-first-paper-reading", readme)
         for label, pattern in {
-            "Codex destination": r"~/\.codex/skills/learner-first-paper-reading",
+            "Codex destination": r"~/\.(?:agents|codex)/skills/learner-first-paper-reading",
             "Claude-compatible destination": r"~/\.claude/skills/learner-first-paper-reading",
-            "fork subdirectory source": r"\./learner-first-paper-reading",
+            "standalone repository root": r"repository root is the complete skill",
             "explicit invocation": r"\$learner-first-paper-reading",
-            "automatic discovery": r"automatic discovery.{0,140}(?:host|client)",
+            "automatic discovery boundary": r"automatic discovery.{0,100}(?:across|client|host)",
             "optional Norman integration": r"norman.{0,160}optional|optional.{0,160}norman",
             "independent fallback": r"works without norman",
-            "upstream license exclusion": r"does not (?:apply to|cover).{0,120}(?:upstream|sibling)",
-            "testing boundary": r"static.{0,120}(?:cannot|does not).{0,100}(?:behavior|learning)",
+            "upstream license exclusion": r"does not (?:relicense|apply to|cover).{0,120}upstream",
+            "testing boundary": r"checks do not establish.{0,160}(?:behavior|learning outcomes)",
         }.items():
             with self.subTest(requirement=label):
                 self.assertRegex(prose, pattern)
@@ -539,29 +539,17 @@ class SkillContract(unittest.TestCase):
             with self.subTest(mode=mode):
                 self.assertIn(mode, prose)
 
-    def test_install_commands_enter_clone_or_main_archive_root(self):
+    def test_install_commands_clone_the_standalone_skill_root(self):
         readme = self.read("README.md")
         blocks = re.findall(r"```(bash|powershell)\n(.*?)```", readme, re.DOTALL)
-        routes = (
-            ("bash", "git clone ", "cd norman-skill"),
-            ("bash", "unzip norman-skill-main.zip", "cd norman-skill-main"),
-            ("powershell", "Expand-Archive ", "Set-Location norman-skill-main"),
-        )
-        for language, acquisition, enter_root in routes:
-            with self.subTest(language=language, acquisition=acquisition):
-                matching = [body for label, body in blocks
-                            if label == language and acquisition in body]
-                self.assertTrue(matching, f"Missing {language} acquisition commands: {acquisition}")
-                self.assertRegex(matching[0], rf"(?m)^{re.escape(enter_root)}$")
-        self.assertIn("https://github.com/HPPPK/norman-skill/archive/refs/heads/main.zip", readme)
-        for host in ("agents", "claude"):
-            self.assertIn(
-                f"cp -R ./learner-first-paper-reading ~/.{host}/skills/learner-first-paper-reading",
-                readme,
-            )
-        self.assertEqual(readme.count(
-            "Copy-Item -LiteralPath .\\learner-first-paper-reading -Destination $destination -Recurse"
-        ), 2, "Both Windows host examples must copy from the selected repository root")
+        clone_blocks = [body for label, body in blocks
+                        if label == "bash" and "git clone " in body]
+        self.assertEqual(2, len(clone_blocks), "Codex and Claude each need a copyable clone command")
+        for body, host in zip(clone_blocks, ("agents", "claude")):
+            with self.subTest(host=host):
+                self.assertIn("https://github.com/HPPPK/learner-first-paper-reading.git", body)
+                self.assertIn(f"~/.{host}/skills/learner-first-paper-reading", body)
+                self.assertNotIn("norman-skill", body)
 
     def test_acknowledgments_credit_every_source_and_its_license_status(self):
         path = ROOT / "ACKNOWLEDGMENTS.md"
