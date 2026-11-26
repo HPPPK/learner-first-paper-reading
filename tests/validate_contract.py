@@ -506,6 +506,10 @@ class SkillContract(unittest.TestCase):
         license_text = self.read("LICENSE")
         readme = self.read("README.md")
         acknowledgments = self.read("ACKNOWLEDGMENTS.md")
+        self.assertTrue(
+            license_text.startswith("MIT License\n"),
+            "Keep the canonical MIT text first so repository hosts can identify it",
+        )
         self.assertIn("MIT License", license_text)
         self.assertIn("Permission is hereby granted, free of charge", license_text)
         self.assertRegex(
