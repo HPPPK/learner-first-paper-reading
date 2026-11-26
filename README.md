@@ -50,45 +50,85 @@ Keep the complete subdirectory together, including `references/`, `assets/`, and
 runtime scripts, bundled model, PDF engine, or API credentials in this skill.
 The host supplies its normal file, PDF, browser, and optional execution tools.
 
-Clone the fork into an unused local directory, or download its ZIP and extract it:
+Choose one acquisition route in an unused working directory. With Git installed,
+these commands work in a macOS/Linux terminal or Windows PowerShell:
 
 ```bash
 git clone https://github.com/HPPPK/norman-skill.git
+cd norman-skill
 ```
 
-Run the copy commands below from the directory containing that checkout. They
-stop if the destination already exists, including a symbolic link; review an
-existing installation before replacing it.
+Alternatively, download and extract the main-branch ZIP. Its root directory is
+`norman-skill-main/`. On macOS/Linux:
+
+```bash
+curl -fL https://github.com/HPPPK/norman-skill/archive/refs/heads/main.zip -o norman-skill-main.zip
+unzip norman-skill-main.zip
+cd norman-skill-main
+```
+
+On Windows PowerShell:
+
+```powershell
+Invoke-WebRequest -Uri https://github.com/HPPPK/norman-skill/archive/refs/heads/main.zip -OutFile norman-skill-main.zip
+Expand-Archive -LiteralPath norman-skill-main.zip -DestinationPath .
+Set-Location norman-skill-main
+```
+
+Both routes leave your terminal in the repository root, with
+`./learner-first-paper-reading` as the source. Run your host's copy commands
+below from there. They stop if the destination already exists, including a
+symbolic link; review an existing installation before replacing it.
 
 ### Codex
 
 The [official OpenAI skill documentation](https://learn.chatgpt.com/docs/build-skills)
-lists `~/.agents/skills/` as the user skill location. For that layout:
+lists `~/.agents/skills/` as the user skill location. On macOS/Linux:
 
 ```bash
 test ! -e ~/.agents/skills/learner-first-paper-reading &&
 test ! -L ~/.agents/skills/learner-first-paper-reading &&
 mkdir -p ~/.agents/skills &&
-cp -R norman-skill/learner-first-paper-reading ~/.agents/skills/learner-first-paper-reading
+cp -R ./learner-first-paper-reading ~/.agents/skills/learner-first-paper-reading
+```
+
+On Windows PowerShell:
+
+```powershell
+$skillDirectory = Join-Path $HOME '.agents/skills'
+$destination = Join-Path $skillDirectory 'learner-first-paper-reading'
+if (Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue) { throw "Destination already exists: $destination" }
+New-Item -ItemType Directory -Path $skillDirectory -Force | Out-Null
+Copy-Item -LiteralPath .\learner-first-paper-reading -Destination $destination -Recurse
 ```
 
 Some Codex installations, including the bundled skill-installer layout used to
 develop this package, use `~/.codex/skills/learner-first-paper-reading`. If that
-is your client's skill location, use the same commands with `~/.codex/skills/`
-in place of `~/.agents/skills/`. Install in one location to avoid duplicate names.
+is your client's skill location, replace `.agents` with `.codex` in the commands
+for your platform. Install in one location to avoid duplicate names.
 You can also ask Codex's `$skill-installer` to install only the
 `learner-first-paper-reading` subdirectory from `HPPPK/norman-skill`.
 
 ### Claude-compatible hosts
 
 [Claude Code](https://code.claude.com/docs/en/skills) supports personal skills in
-`~/.claude/skills/`. For a local Claude Code session:
+`~/.claude/skills/`. On macOS/Linux:
 
 ```bash
 test ! -e ~/.claude/skills/learner-first-paper-reading &&
 test ! -L ~/.claude/skills/learner-first-paper-reading &&
 mkdir -p ~/.claude/skills &&
-cp -R norman-skill/learner-first-paper-reading ~/.claude/skills/learner-first-paper-reading
+cp -R ./learner-first-paper-reading ~/.claude/skills/learner-first-paper-reading
+```
+
+On Windows PowerShell:
+
+```powershell
+$skillDirectory = Join-Path $HOME '.claude/skills'
+$destination = Join-Path $skillDirectory 'learner-first-paper-reading'
+if (Get-Item -LiteralPath $destination -Force -ErrorAction SilentlyContinue) { throw "Destination already exists: $destination" }
+New-Item -ItemType Directory -Path $skillDirectory -Force | Out-Null
+Copy-Item -LiteralPath .\learner-first-paper-reading -Destination $destination -Recurse
 ```
 
 Other Claude-compatible hosts may have different import locations and invocation
@@ -134,11 +174,16 @@ A forward test or one matching metric does not establish full reproduction.
 The [static validator](tests/validate_contract.py) checks structure, instruction
 coverage, package links, and attribution. Static validation cannot establish
 agent behavior or learner understanding. The [scenario rubric](tests/scenarios.md)
-defines seven fresh-context behavior checks; the
+defines seven fresh-context behavior checks, and the
 [baseline observations](tests/baseline-observations.md) record three no-skill
-controls. At packaging time, with-skill behavior evaluation, installed discovery,
-and cross-client smoke testing have not yet been completed. A full learning
-session or improved learning outcome is not established by these checks.
+controls. The [with-skill evaluation](tests/evaluation-results.md) records seven
+sampled scenarios. All passed the exercised criteria after correcting and
+freshly rerunning the abstract-only case, which initially omitted a future
+full-text reading plan; a neighboring critique-deferral case was also rerun.
+A separate explicit installed-path DLinear opening smoke observed process
+disclosure and a route-agreement pause. Cross-client compatibility and automatic
+discovery across clients were not established. Neither a completed full-paper
+learning session nor improved learning outcomes are established by these checks.
 
 From the repository root, run the package checks with Python 3.9 or newer:
 

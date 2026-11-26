@@ -524,7 +524,7 @@ class SkillContract(unittest.TestCase):
         for label, pattern in {
             "Codex destination": r"~/\.codex/skills/learner-first-paper-reading",
             "Claude-compatible destination": r"~/\.claude/skills/learner-first-paper-reading",
-            "fork subdirectory source": r"norman-skill/learner-first-paper-reading",
+            "fork subdirectory source": r"\./learner-first-paper-reading",
             "explicit invocation": r"\$learner-first-paper-reading",
             "automatic discovery": r"automatic discovery.{0,140}(?:host|client)",
             "optional Norman integration": r"norman.{0,160}optional|optional.{0,160}norman",
@@ -538,6 +538,30 @@ class SkillContract(unittest.TestCase):
                      "implementation/reproduction", "focused explanation"):
             with self.subTest(mode=mode):
                 self.assertIn(mode, prose)
+
+    def test_install_commands_enter_clone_or_main_archive_root(self):
+        readme = self.read("README.md")
+        blocks = re.findall(r"```(bash|powershell)\n(.*?)```", readme, re.DOTALL)
+        routes = (
+            ("bash", "git clone ", "cd norman-skill"),
+            ("bash", "unzip norman-skill-main.zip", "cd norman-skill-main"),
+            ("powershell", "Expand-Archive ", "Set-Location norman-skill-main"),
+        )
+        for language, acquisition, enter_root in routes:
+            with self.subTest(language=language, acquisition=acquisition):
+                matching = [body for label, body in blocks
+                            if label == language and acquisition in body]
+                self.assertTrue(matching, f"Missing {language} acquisition commands: {acquisition}")
+                self.assertRegex(matching[0], rf"(?m)^{re.escape(enter_root)}$")
+        self.assertIn("https://github.com/HPPPK/norman-skill/archive/refs/heads/main.zip", readme)
+        for host in ("agents", "claude"):
+            self.assertIn(
+                f"cp -R ./learner-first-paper-reading ~/.{host}/skills/learner-first-paper-reading",
+                readme,
+            )
+        self.assertEqual(readme.count(
+            "Copy-Item -LiteralPath .\\learner-first-paper-reading -Destination $destination -Recurse"
+        ), 2, "Both Windows host examples must copy from the selected repository root")
 
     def test_acknowledgments_credit_every_source_and_its_license_status(self):
         path = ROOT / "ACKNOWLEDGMENTS.md"
