@@ -269,15 +269,15 @@ def task4_contract_errors(text, contract):
 
 
 def reproduction_state_errors(text):
-    """Check each state has its own evidence and boundary, not just a name."""
+    """Check affirmative evidence duties and state-specific inference limits."""
     rows = re.findall(r"^\|\s*(\d+)\s*\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|\s*$", text, re.MULTILINE)
     expected = (
-        ("conceptual understanding", r"explain.*question.*method.*evidence.*scope", r"execution"),
-        ("paper-to-code mapping", r"inspect.*anchor.*file.*operation.*shape", r"run"),
-        ("forward/shape validation", r"inspect.*input.*output.*finite.*log", r"training.*metric"),
-        ("small-scale training", r"inspect.*data.*loss.*update.*checkpoint", r"benchmark"),
-        ("metric consistency with the paper", r"inspect.*split.*preprocessing.*metric.*tolerance.*result", r"one.*setting.*full"),
-        ("full reproduction across reported settings", r"inspect.*all.*settings.*seeds.*uncertainty.*deviations", r"scope"),
+        ("conceptual understanding", r"^explain\b.*question.*method.*evidence.*scope", r"execution"),
+        ("paper-to-code mapping", r"^inspect\b.*anchor.*file.*operation.*shape", r"run"),
+        ("forward/shape validation", r"^inspect\b.*input.*output.*finite.*log", r"^this does not establish\b.*training.*metric"),
+        ("small-scale training", r"^inspect\b.*data.*loss.*update.*checkpoint", r"benchmark"),
+        ("metric consistency with the paper", r"^inspect\b.*split.*preprocessing.*metric.*tolerance.*result", r"^one matching (?:setting or metric|setting|metric) does not establish full reproduction\b"),
+        ("full reproduction across reported settings", r"^inspect\b.*all.*settings.*seeds.*uncertainty.*deviations", r"scope"),
     )
     errors = []
     if [row[0] for row in rows] != list("123456"):
@@ -758,6 +758,23 @@ class Task4ContentContracts(unittest.TestCase):
         self.assertEqual(reproduction_state_errors(missing_state), ["exactly six numbered state rows in order"])
         extra_state = reproduction + "\n| 7 | Extra state | Inspect extra evidence | Extra scope |\n"
         self.assertEqual(reproduction_state_errors(extra_state), ["exactly six numbered state rows in order"])
+
+    def test_state_rows_reject_negated_inspection_and_reversed_inference_boundaries(self):
+        reproduction = self.content("references/reproduction-levels.md")
+        cases = (
+            ("3", "This does not establish training", "This does establish training"),
+            ("5", "One matching setting or metric does not establish full reproduction",
+             "One matching setting or metric does establish full reproduction"),
+            ("4", "Inspect a bounded data subset", "Do not inspect a bounded data subset"),
+        )
+        for state, original, replacement in cases:
+            with self.subTest(state=state):
+                self.assertIn(original, reproduction, "Mutation must change the actual guidance")
+                mutated = reproduction.replace(original, replacement, 1)
+                self.assertEqual(
+                    reproduction_state_errors(mutated),
+                    [f"state {state} needs its distinct name, evidence, and boundary"],
+                )
 
 
 if __name__ == "__main__":
