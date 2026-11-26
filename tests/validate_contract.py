@@ -38,8 +38,14 @@ RELATIONSHIPS = {
         r"\bwhen\b.{0,40}?\b(?:learner|user)\b.{0,40}?\basks? to learn\b"
         r".{0,100}?\bguided learning\b.{0,40}?\b(?:is|as) the default\b",
     ),
-    "direct requests receive a direct response": (
-        r"\b(?:focused explanations?|non-interactive reports?)\b.{0,100}?"
+    "focused explanations receive a direct response": (
+        r"\b(?:focused|direct) explanations?\b.{0,100}?"
+        r"\bdisclose\b.{0,60}?\b(?:brief |short )?route\b.{0,80}?"
+        r"\banswer directly\b.{0,40}?\bsame response\b.{0,80}?"
+        r"\bwithout\b.{0,40}?\b(?:learner |reading |agreement )?pause\b",
+    ),
+    "non-interactive reports receive a direct response": (
+        r"\bnon-interactive reports?\b.{0,100}?"
         r"\bdisclose\b.{0,60}?\b(?:brief |short )?route\b.{0,80}?"
         r"\banswer directly\b.{0,40}?\bsame response\b.{0,80}?"
         r"\bwithout\b.{0,40}?\b(?:learner |reading |agreement )?pause\b",
@@ -191,14 +197,17 @@ class SkillContract(unittest.TestCase):
             "The guided learning route must point to its workflow",
         )
 
-    def test_focused_and_noninteractive_requests_do_not_get_a_fake_pause(self):
-        skill = self.entrypoint()
+    def test_focused_explanations_do_not_get_a_fake_pause(self):
         self.assertTrue(
-            has_positive_relationship(skill, "direct requests receive a direct response"),
-            "Direct requests need brief route disclosure followed by an answer in the same response",
+            has_positive_relationship(self.entrypoint(), "focused explanations receive a direct response"),
+            "Focused explanations need route disclosure and a direct answer without a learner pause",
         )
-        self.assertRegex(skill.lower(), r"focused explanation")
-        self.assertRegex(skill.lower(), r"non-interactive report")
+
+    def test_noninteractive_reports_do_not_get_a_fake_pause(self):
+        self.assertTrue(
+            has_positive_relationship(self.entrypoint(), "non-interactive reports receive a direct response"),
+            "Non-interactive reports need route disclosure and a direct answer without a learner pause",
+        )
 
     def test_abstract_only_access_limits_the_plan_and_claims(self):
         self.assertTrue(
@@ -308,10 +317,42 @@ class ContractRelationshipChecks(unittest.TestCase):
         ))
 
     def test_direct_route_requires_answering_without_a_pause(self):
-        self.check_cases("direct requests receive a direct response", (
+        common_cases = (
             ("positive", "For focused explanations or non-interactive reports, disclose a brief route and answer directly in the same response without a learner pause.", True),
-            ("fake pause", "For non-interactive reports, disclose a brief route and wait for the learner to answer before proceeding.", False),
-            ("omitted disclosure", "For focused explanations, answer directly in the same response without a learner pause.", False),
+            ("fake pause", "For focused explanations or non-interactive reports, disclose a brief route and wait for the learner to answer before proceeding.", False),
+            ("omitted disclosure", "For focused explanations or non-interactive reports, answer directly in the same response without a learner pause.", False),
+        )
+        for relationship in (
+            "focused explanations receive a direct response",
+            "non-interactive reports receive a direct response",
+        ):
+            with self.subTest(relationship=relationship):
+                self.check_cases(relationship, common_cases)
+
+    def test_report_route_rejects_split_explanation_and_report_behavior(self):
+        split_behavior = (
+            "For focused explanations, disclose a brief route and answer directly "
+            "in the same response without a learner pause. "
+            "For explicit non-interactive reports, disclose a brief route and "
+            "require a learner pause before proceeding."
+        )
+        self.assertTrue(has_positive_relationship(
+            split_behavior, "focused explanations receive a direct response",
+        ))
+        self.assertFalse(has_positive_relationship(
+            split_behavior, "non-interactive reports receive a direct response",
+        ))
+
+    def test_direct_routes_cannot_borrow_the_other_categorys_instruction(self):
+        focused_only = "For direct explanations, disclose a brief route and answer directly in the same response without a learner pause."
+        report_only = "For explicit non-interactive reports, disclose a brief route and answer directly in the same response without a learner pause."
+        self.check_cases("focused explanations receive a direct response", (
+            ("focused only", focused_only, True),
+            ("report only", report_only, False),
+        ))
+        self.check_cases("non-interactive reports receive a direct response", (
+            ("focused only", focused_only, False),
+            ("report only", report_only, True),
         ))
 
     def test_abstract_route_requires_a_limited_plan_and_claim_boundary(self):
