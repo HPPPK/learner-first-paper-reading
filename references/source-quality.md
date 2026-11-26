@@ -32,6 +32,13 @@ comparison protocol, visual evidence, and limitations remain Unknown until their
 sources are inspected. For excerpts, bound the claim to that excerpt. Do not
 invent the missing section structure from memory.
 
+In an abstract-only guided route, include a compact future full-text reading plan
+with the first limited orientation, before the current reading/answer pause:
+inspect the method, data and comparison protocol, original figures/tables and
+results, and stated limitations as relevant. Present these as future inspection
+targets, without inventing section numbers or searching against a source limit.
+Keep the current assignment within the excerpt and ask only one current question.
+
 Disclose access limits such as unavailable full text, blocked pages, unreadable
 figures, incomplete extraction, or unopened supplements. State what each limit
 prevents checking and which source would resolve it. A failed visual extraction
