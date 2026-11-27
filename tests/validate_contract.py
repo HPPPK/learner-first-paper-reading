@@ -404,6 +404,50 @@ class SkillContract(unittest.TestCase):
             "missing source or decision": r"missing|unavailable|unresolved decision",
         })
 
+    def test_guided_route_builds_a_private_paper_map_before_the_first_assignment(self):
+        guided = self.read("references/guided-reading-workflow.md")
+        normalized = " ".join(guided.lower().split())
+        self.assertRegex(
+            normalized,
+            r"before the first reading assignment.{0,180}privately inspect.{0,180}"
+            r"provisional.{0,80}question.{0,40}method.{0,40}evidence.{0,40}boundary map",
+            "Guided reading must use a private provisional whole-paper map before assigning the first passage",
+        )
+        self.assertRegex(
+            normalized,
+            r"use this map.{0,120}explain why.{0,100}(?:passage|material).{0,40}(?:comes next|next)",
+            "The paper map must justify the next selected reading without dumping the full interpretation",
+        )
+        scenarios = self.read("tests/scenarios.md")
+        self.assertIn("## Scenario 9:", scenarios)
+
+    def test_diagnostic_questions_are_answerable_from_the_exact_assigned_material(self):
+        guided = " ".join(self.read("references/guided-reading-workflow.md").lower().split())
+        self.assertRegex(
+            guided,
+            r"every diagnostic question.{0,100}answerable.{0,100}exact (?:material|source material).{0,60}assigned",
+            "A learner must not be asked to answer from sections or tables they were not assigned",
+        )
+        scenarios = self.read("tests/scenarios.md")
+        self.assertIn("## Scenario 8:", scenarios)
+
+    def test_future_work_research_ideas_and_learning_steps_stay_separate(self):
+        guided = " ".join(self.read("references/guided-reading-workflow.md").lower().split())
+        for label in (
+            "authors' future work",
+            "analyst's optional research ideas",
+            "learner's immediate next step",
+        ):
+            with self.subTest(label=label):
+                self.assertIn(label, guided)
+        self.assertRegex(
+            guided,
+            r"do not (?:generate|create|provide).{0,80}research plan.{0,100}unless the user requests",
+            "Research planning must be opt-in rather than an automatic reading-session output",
+        )
+        scenarios = self.read("tests/scenarios.md")
+        self.assertIn("## Scenario 10:", scenarios)
+
     def test_four_voices_and_comprehension_gate_are_routed(self):
         evidence = self.read("references/evidence-and-review.md")
         self.assertTrue(

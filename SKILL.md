@@ -40,6 +40,10 @@ participation as absent for this request. A focused “just explain it” reques
 needs no route-agreement questionnaire. Ask for missing material only when the
 answer actually depends on it; give the supported part now.
 
+Keep the authors' stated future work, the Analyst's optional research ideas, and
+the learner's immediate next step distinct. Do not generate a research plan
+unless the user requests research planning, extension, or project transfer.
+
 ## Load references when needed
 
 | Need | Reference |

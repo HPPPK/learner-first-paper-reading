@@ -6,6 +6,20 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Four plain-language starting prompts for guided learning, full evidence review,
+  focused explanation, and paper-to-code reproduction checking.
+- Regression scenarios for assignment-answer alignment, private paper mapping,
+  and separation of author, analyst, and learner next steps.
+
+### Changed
+
+- Guided reading now builds a provisional paper map before the first assignment
+  and asks only questions answerable from the material assigned.
+- Research plans are opt-in; author future work, analyst ideas, and the learner's
+  immediate reading step remain distinct.
+
 ## [0.1.2] - 2026-11-26
 
 ### Fixed

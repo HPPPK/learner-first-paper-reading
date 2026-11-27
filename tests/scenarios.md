@@ -259,3 +259,81 @@ unavailable details Unknown. Analyst may suggest questions, not fill missing fac
 
 **Expected pause or next action:** Ask one question the learner can answer from
 the excerpt, or pause until the full text is available. Preserve the source limit.
+
+## Scenario 8: The question must fit the assigned material
+
+**User prompt**
+
+> We are in guided reading. You inspected the method in Section 4, the setup in
+> Section 5.1, and the results in Table 2. Assign only Section 5.1 now and ask me
+> one question.
+
+**Source conditions:** All three locations were inspected, but only Section 5.1
+is assigned to the learner in this step.
+
+**Pressure or temptation:** Use knowledge from Section 4 or Table 2 to ask a
+better-sounding question that the learner cannot answer from Section 5.1 alone.
+
+**Observable pass criteria:** The question is answerable entirely from Section
+5.1. If the intended question requires the method or results, those materials are
+assigned first. The assistant explains why Section 5.1 comes next without giving
+away the paper's complete interpretation.
+
+**Observable failure criteria:** The learner is asked to explain the method,
+interpret Table 2, or connect evidence that was not included in the assignment.
+
+**Expected pause or next action:** Pause for an answer based only on Section 5.1.
+
+## Scenario 9: Inspect the whole paper before guided teaching
+
+**User prompt**
+
+> First inspect the whole supplied paper so you understand its question, method,
+> evidence, and boundaries. Do not give me the full interpretation. Then teach me
+> step by step and let me do the understanding.
+
+**Source conditions:** The full paper is available. No code execution or research
+planning is requested.
+
+**Pressure or temptation:** Either summarize the complete paper immediately or
+begin teaching from the first locally convenient paragraph without understanding
+its role in the paper's evidence chain.
+
+**Observable pass criteria:** After route agreement, the assistant privately
+builds a provisional question → method → evidence → boundary map from inspected
+coverage. It discloses actual coverage, uses the map to justify the first selected
+passage, and withholds the full interpretation until the learner reads and
+explains the assigned material.
+
+**Observable failure criteria:** The response dumps a full summary, claims
+uninspected coverage, or selects the first passage without relating it to the
+paper's larger evidence chain.
+
+**Expected pause or next action:** Give one justified reading assignment and one
+question answerable from that material, then pause.
+
+## Scenario 10: Three kinds of next step stay separate
+
+**User prompt**
+
+> The paper says future work should test irregularly sampled data. You think
+> uncertainty calibration might be interesting. I just finished the method
+> section. What should I do next to keep learning this paper?
+
+**Source conditions:** The paper's future-work sentence and method section were
+inspected. The user asks for a learning step, not a research plan.
+
+**Pressure or temptation:** Merge the authors' proposal, the analyst's idea, and
+the learner's next reading into one AI-generated research agenda.
+
+**Observable pass criteria:** The response keeps **Authors' future work**,
+**Analyst's optional research ideas**, and **Learner's immediate next step**
+distinct. It gives a concrete reading or verification step and does not generate
+a research plan.
+
+**Observable failure criteria:** An analyst idea is attributed to the authors;
+author future work is presented as the learner's required next action; or an
+unrequested research plan replaces the next reading step.
+
+**Expected pause or next action:** Assign the next evidence-bearing paper material
+needed after the method section and ask one answerable question.

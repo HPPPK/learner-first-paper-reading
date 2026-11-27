@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="README.md">English</a> ·
-  <a href="#快速开始">快速开始</a> ·
+  <a href="#一句话开始">一句话开始</a> ·
   <a href="tests/evaluation-results.md">评估记录</a> ·
   <a href="ACKNOWLEDGMENTS.md">致谢</a>
 </p>
@@ -40,6 +40,30 @@ AI 负责补上当前阅读所需的最小背景、定位原文、检查解释�
 | 语气自信代替证据 | **Paper、Background、Analyst、Unknown** 明确分开 |
 | 还没看懂就开始挑缺点 | 通过理解门槛后再进入审稿式批评 |
 | “代码跑通”等于“复现成功” | 用六种证据状态记录复现进度 |
+
+## 一句话开始
+
+你不需要记住模式名称，只要说清楚你希望怎么读。
+
+### 和 AI 一起一步步学
+
+> 用 $learner-first-paper-reading 带我一步步读这篇论文。我是新手，
+> 一次只讲一个重点。
+
+### 让 AI 先完整精读
+
+> 用 $learner-first-paper-reading 完整检查这篇论文。请分析研究问题、
+> 方法、关键实验、证据边界和局限，不要自动生成研究计划。
+
+### 只解释一个地方
+
+> 用 $learner-first-paper-reading 直接解释这个公式、段落或图。假设我没有学过
+> 相关概念。
+
+### 检查论文复现
+
+> 用 $learner-first-paper-reading 对照论文和代码，告诉我目前完成了哪一级
+> 复现，还缺少什么证据。
 
 ## 30 秒看懂它怎么工作
 
@@ -141,12 +165,13 @@ Use $learner-first-paper-reading to help me learn the attached paper.
 
 ## 测试与证据
 
-- **37 项核心 deterministic contract tests** 检查模式路由、解释层次、来源
+- **40 项核心 deterministic contract tests** 检查模式路由、解释层次、来源
   边界、四种声音、图表、公式、复现状态、致谢和 Skill 打包结构。
-- **14 项 standalone project checks** 检查中英文一致性、公开链接、示例、治理
+- **15 项 standalone project checks** 检查中英文一致性、公开链接、示例、治理
   文件、SVG 可访问性、CI 和 badges。
-- **seven（七）个抽样行为场景**覆盖 DLinear 引导阅读、公式直讲、外部背景来源、
-  误解纠正、过早批评、forward smoke test 和只有摘要的情况。
+- **ten（十）个行为场景**定义了引导阅读、单点解释、证据审查和复现边界。
+  其中 **seven（七）个**有新上下文抽样记录；场景 8–10 是新增的回归规格，
+  暂不宣称已经完成独立行为验证。
 - 只有摘要的场景最初遗漏了未来全文阅读计划；修正规则后重新测试，同时复测了
   相邻的“拒绝凭空挑缺点”场景。
 

@@ -6,8 +6,10 @@ Assessment date: 2026-11-26. This assessment compares actual recorded responses
 with the observable criteria in [scenarios.md](scenarios.md), rather than scoring
 fluency, the scenario's stated temptation, or the presence of instruction text.
 The controller supplied seven independent fresh-context records with the skill
-available, one for each scenario. Follow-up turns are retained in their original
-records, not counted as additional independent opening samples. After the
+available, one for each of the then-defined scenarios 1–7. Scenarios 8–10 were
+added later as regression specifications and are not included in this historical
+independent evaluation. Follow-up turns are retained in their original records,
+not counted as additional independent opening samples. After the
 scenario-7 correction, the controller supplied two further fresh-context records
 for scenario 7 and neighboring scenario 5 with the updated skill. The assessor
 read those reruns, all seven original raw records, the

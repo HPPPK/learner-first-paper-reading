@@ -1,4 +1,4 @@
 interface:
   display_name: "Learner-First Paper Reading"
   short_description: "Learn research papers through reading and teach-back"
-  default_prompt: "Use $learner-first-paper-reading to guide me through learning this paper, starting with a proposed route and the prerequisites I need."
+  default_prompt: "Use $learner-first-paper-reading to help me understand this paper. Assume I am new to the topic, choose an appropriate route, and explain how we will work before starting."

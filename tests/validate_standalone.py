@@ -77,8 +77,8 @@ class StandaloneProjectContracts(unittest.TestCase):
         standalone_source = Path(__file__).read_text(encoding="utf-8")
         contract_count = len(re.findall(r"^\s+def test_", contract_source, flags=re.MULTILINE))
         standalone_count = len(re.findall(r"^\s+def test_", standalone_source, flags=re.MULTILINE))
-        self.assertEqual(37, contract_count, "Update this contract when core coverage changes")
-        self.assertEqual(14, standalone_count, "Update this contract when project coverage changes")
+        self.assertEqual(40, contract_count, "Update this contract when core coverage changes")
+        self.assertEqual(15, standalone_count, "Update this contract when project coverage changes")
         self.assertRegex(readme, rf"\b{contract_count}\b[^\n]*(?:contract|deterministic)")
         self.assertRegex(readme, rf"\b{standalone_count}\b[^\n]*standalone")
 
@@ -92,7 +92,7 @@ class StandaloneProjectContracts(unittest.TestCase):
         for text in (english, chinese):
             self.assertIn("AI scaffolds. You read. Evidence decides.", text)
             self.assertIn("$learner-first-paper-reading", text)
-            self.assertIn("37", text)
+            self.assertIn("40", text)
             self.assertIn("seven", text.lower() if text is english else text.replace("七", "seven"))
             self.assertIn("automatic discovery", text.lower())
             self.assertIn("learning outcomes", text.lower())
@@ -104,6 +104,19 @@ class StandaloneProjectContracts(unittest.TestCase):
             self.assertIn("assets/workflow.svg", text)
             self.assertRegex(text, r"(?i)(quick start|快速开始)")
             self.assertRegex(text, r"(?i)(paper|论文).*(evidence|证据)")
+
+    def test_landing_pages_offer_four_plain_language_starting_requests(self) -> None:
+        english = (ROOT / "README.md").read_text(encoding="utf-8")
+        chinese = (ROOT / "README.zh-CN.md").read_text(encoding="utf-8")
+        self.assertIn("## Start in one sentence", english)
+        self.assertIn("你不需要记住模式名称", chinese)
+        for text, patterns in (
+            (english, (r"step by step", r"complete evidence review", r"explain (?:only )?this", r"paper and code")),
+            (chinese, (r"一步步", r"完整检查", r"直接解释", r"论文和代码")),
+        ):
+            for pattern in patterns:
+                with self.subTest(pattern=pattern):
+                    self.assertRegex(text.lower(), pattern)
 
     def test_svg_assets_are_accessible_and_brand_consistent(self) -> None:
         for name in ("hero.svg", "workflow.svg"):

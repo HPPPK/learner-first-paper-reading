@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="README.zh-CN.md">简体中文</a> ·
-  <a href="#quick-start">Quick start</a> ·
+  <a href="#start-in-one-sentence">Start in one sentence</a> ·
   <a href="tests/evaluation-results.md">Evaluation</a> ·
   <a href="ACKNOWLEDGMENTS.md">Acknowledgments</a>
 </p>
@@ -41,6 +41,32 @@ intellectual work.
 | Confidence substitutes for evidence | **Paper**, **Background**, **Analyst**, and **Unknown** stay separate |
 | Criticism arrives before understanding | Reviewer-style criticism waits for a comprehension gate |
 | “The code ran” becomes “reproduced” | Reproduction is recorded across six evidence states |
+
+## Start in one sentence
+
+You do not need to remember mode names. Say how you want to read, and the skill
+will choose the route.
+
+### Learn step by step with AI
+
+> Use $learner-first-paper-reading to help me read this paper step by step. I am
+> new to the topic; teach one important idea at a time.
+
+### Let AI review the full paper first
+
+> Use $learner-first-paper-reading to run a complete evidence review of this
+> paper. Analyze the question, method, key experiments, evidence boundaries, and
+> limitations. Do not automatically create a research plan.
+
+### Explain only this part
+
+> Use $learner-first-paper-reading to explain only this formula, passage, or
+> figure. Assume I have not learned the prerequisite concepts.
+
+### Check a reproduction
+
+> Use $learner-first-paper-reading to compare the paper and code. Tell me which
+> reproduction level is currently supported and what evidence is still missing.
 
 ## A 30-second example
 
@@ -153,14 +179,15 @@ learning outcomes.
 
 ## What is tested
 
-- **37 core deterministic contract tests** check routing, explanation layers,
+- **40 core deterministic contract tests** check routing, explanation layers,
   source boundaries, evidence voices, figures, equations, reproduction states,
   attribution, and the skill package.
-- **14 standalone project checks** cover bilingual parity, public links, examples,
+- **15 standalone project checks** cover bilingual parity, public links, examples,
   governance files, accessible SVGs, CI, and badges.
-- **Seven sampled behavior scenarios** cover guided DLinear reading, direct
-  equation explanation, prerequisite sourcing, misconception correction,
-  premature criticism, a forward smoke test, and abstract-only access.
+- **Ten behavior scenarios** define guided reading, direct explanation, evidence,
+  and reproduction expectations. Seven have recorded fresh-context samples;
+  scenarios 8–10 are new regression specifications and are not yet claimed as
+  independent behavioral passes.
 - The abstract-only scenario initially missed a future full-text reading plan;
   the narrow correction and a neighboring critique-deferral case were rerun.
 

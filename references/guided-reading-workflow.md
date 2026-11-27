@@ -45,6 +45,12 @@ If the abstract is the only accessible source, explain its stated question and
 claims as abstract claims, offer a limited reading plan, and identify the full
 text needed to assess the method and evidence.
 
+Before the first reading assignment, privately inspect enough of the available
+full paper to build a provisional **question → method → evidence → boundary
+map**. If full text is unavailable, map only the inspected coverage and keep the
+gaps explicit. Use this map to explain why the selected passage comes next, but
+do not reveal the paper's complete interpretation before the learner reads it.
+
 Choose only the prerequisites needed for the first selected passage. For each
 actual gap, explain the technical need, plain-language mechanism, minimal worked
 example, precise definition or operation, paper role, and boundary. Use the
@@ -65,6 +71,9 @@ Start with one manageable reading assignment. Ask the learner to record the
 question the paper asks, the authors' apparent answer, the strongest evidence
 they notice, confusing terms or passages, and current doubts as those become
 available. These are provisional notes, not answers to a completed AI summary.
+Every diagnostic question must be answerable from the exact material assigned;
+assign any additional section, figure, or table before asking a question that
+depends on it.
 Pause for the learner to read and report back. Answer local blocking questions
 during the pause, then return to the assigned location; preserve the rest of the
 learner's reading work. Do not treat silence as completion.
@@ -113,6 +122,17 @@ choose a direct report, provide a source-grounded reconstruction followed by
 critique without claiming learner mastery. Use the evidence/review reference;
 missing details remain unknown rather than automatic defects. Reproduction is a
 separate route with distinct verification levels, not a reward implied by reading.
+
+Keep three kinds of “next step” separate when they appear:
+
+- **Authors' future work:** directions explicitly proposed by the paper.
+- **Analyst's optional research ideas:** possible extensions suggested by the AI.
+- **Learner's immediate next step:** what the learner should read, explain, or
+  verify now.
+
+Do not generate a research plan unless the user requests research planning,
+extension, or project transfer. A guided-reading next step is not automatically a
+research proposal.
 
 ## Finish with closed-book reconstruction
 
